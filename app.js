@@ -19,86 +19,118 @@ bot.on('ready', function () {
     bot.user.setActivity('T\'es moche Sh0t`', {type: 'STREAMING'})
         .then(
             presence => console.log(`Activity set to ${presence.game ? presence.game.name : 'none'}`)
-)
-.catch(console.error);
+        )
+        .catch(console.error);
 
     setInterval(() => {
         uptime();
-}, 1000);
+    }, 1000);
+
+    setInterval( () => {
+        request('https://spacelaunchnow.me/3.2.0/launch/upcoming/', {json: true}, (err, res, body) => {
+            if (new Date(body.results[0].set) < new Date(Date.now() + 60*60*1000) ) {
+
+                bot.channels.get('541709923562815509').send(`@everyone`);
+
+                let dateWindowStartFormat = dateFormat(new Date(body.results[0].window_start), 'dd-mm-yyyy hh:MM TT');
+                let dateWindowEndFormat = dateFormat(new Date(body.results[0].window_end), 'dd-mm-yyyy hh:MM TT');
+
+                const info = '**__' + body.results[0].name + '__ \n ' + body.results[0].rocket.configuration.launch_service_provider + '** \n' +
+                    'Pad ' + body.results[0].pad.id + ' at ' + body.results[0].pad.location.name + '\n' +
+                    'Mission : ' + body.results[0].mission.name + '\n' +
+                    'Orbit : ' + body.results[0].mission.orbit + '\n \n' +
+                    'Window start : ' + dateWindowStartFormat + '\n' +
+                    'Window end : ' + dateWindowEndFormat + '\n' +
+                    body.results[0].slug + '\n \n';
+
+                const launchInfo = new Discord.RichEmbed()
+                    .setTitle(`*${body.count} planned launch*`)
+                    .setAuthor(bot.user.username, bot.user.avatarURL)
+                    .setColor(0x00AE86)
+                    .setDescription(info)
+                    .setImage("https://blogs.nasa.gov/Rocketology/wp-content/uploads/sites/251/2015/09/NASA-Space-Launch-System-SLS-ascends-through-clouds.jpg")
+                    .setTimestamp()
+                    .addBlankField(true)
+                    .setFooter("Info from Space Launch Now", "https://daszojo4xmsc6.cloudfront.net/static/home/img/launcher.png");
+
+                bot.channels.get('541709923562815509').send(launchInfo);
+            }
+        })
+    }, 3600000)
 });
 
 bot.on('message', msg => {
     if (msg.author.id !== '539008508218310678') {
 
-    switch (msg.content) {
-        case 'reload':
-            if (msg.author.id === '275641123576479745') {
-                msg.channel.send('Ok, i\'m reload');
-                bot.destroy().then(() => {
-                    second = 0;
-                minute = 0;
-                hour = 0;
-                bot.login(config.discord.token).then(() => {
-                    console.log('Connected');
-                msg.channel.send('I\'m back !');
-            });
-            });
-            } else {
-                commandRefused(msg, 'reload');
-            }
-            break;
-
-        case 'ping':
-            msg.reply('pong !');
-            break;
-
-        case 'uptime':
-            msg.channel.send(uptime());
-            break;
-
-        case 'ah!':
-            const emojiAh = bot.emojis.find(emoji => emoji.name === "ah");
-            msg.channel.send(`${emojiAh} ah!`);
-            break;
-
-        case '!%js':
-            msg.member.addRole('539445864306049034').then(msg.reply('The role has been added'));
-            break;
-
-        case 'launch':
-            request('https://spacelaunchnow.me/3.2.0/launch/upcoming/', {json: true}, (err, res, body) => {
-                if (err) {
-                    msg.channel.send(err);
+        switch (msg.content) {
+            case 'reload':
+                if (msg.author.id === '275641123576479745') {
+                    msg.channel.send('Ok, i\'m reload');
+                    bot.destroy().then(() => {
+                        second = 0;
+                        minute = 0;
+                        hour = 0;
+                        bot.login(config.discord.token).then(() => {
+                            console.log('Connected');
+                            msg.channel.send('I\'m back !');
+                        });
+                    });
+                } else {
+                    commandRefused(msg, 'reload');
                 }
-                let list= [];
+                break;
 
-            for (let i = 0; i < 5; i++) {
-                let dateWindowStartFormat = dateFormat(new Date(body.results[i].window_start), 'dd-mm-yyyy hh:MM TT');
-                let dateWindowEndFormat = dateFormat(new Date(body.results[i].window_end), 'dd-mm-yyyy hh:MM TT');
+            case 'ping':
+                msg.reply('pong !');
+                break;
 
-                list.push( '**__' + body.results[i].name + '__ \n ' + body.results[i].rocket.configuration.launch_service_provider + '** \n' +
-                    'Pad ' + body.results[i].pad.id + ' at ' + body.results[i].pad.location.name + '\n' +
-                    'Mission : ' + body.results[i].mission.name + '\n' +
-                    'Orbit : ' + body.results[i].mission.orbit + '\n \n' +
-                    'Window start : ' + dateWindowStartFormat + '\n' +
-                    'Window end : ' + dateWindowEndFormat + '\n' +
-                    body.results[i].slug + '\n \n');
-            }
+            case 'uptime':
+                msg.channel.send(uptime());
+                break;
 
-            const embed = new Discord.RichEmbed()
-                .setTitle(`*${body.count} planned launch*`)
-                .setAuthor(bot.user.username, bot.user.avatarURL)
-                .setColor(0x00AE86)
-                .setDescription(list)
-                .setImage("https://blogs.nasa.gov/Rocketology/wp-content/uploads/sites/251/2015/09/NASA-Space-Launch-System-SLS-ascends-through-clouds.jpg")
-                .setTimestamp()
-                .addBlankField(true)
-                .setFooter("Info from Space Launch Now", "https://daszojo4xmsc6.cloudfront.net/static/home/img/launcher.png");
+            case 'ah!':
+                const emojiAh = bot.emojis.find(emoji => emoji.name === "ah");
+                msg.channel.send(`${emojiAh} ah!`);
+                break;
 
-            msg.channel.send({embed});
-    })
-}
-}
+            case '!%js':
+                msg.member.addRole('539445864306049034').then(msg.reply('The role has been added'));
+                break;
+
+            case 'launch':
+                request('https://spacelaunchnow.me/3.2.0/launch/upcoming/', {json: true}, (err, res, body) => {
+                    if (err) {
+                        msg.channel.send(err);
+                    }
+                    let list = [];
+
+                    for (let i = 0; i < 5; i++) {
+                        let dateWindowStartFormat = dateFormat(new Date(body.results[i].window_start), 'dd-mm-yyyy hh:MM TT');
+                        let dateWindowEndFormat = dateFormat(new Date(body.results[i].window_end), 'dd-mm-yyyy hh:MM TT');
+
+                        list.push('**__' + body.results[i].name + '__ \n ' + body.results[i].rocket.configuration.launch_service_provider + '** \n' +
+                            'Pad ' + body.results[i].pad.id + ' at ' + body.results[i].pad.location.name + '\n' +
+                            'Mission : ' + body.results[i].mission.name + '\n' +
+                            'Orbit : ' + body.results[i].mission.orbit + '\n \n' +
+                            'Window start : ' + dateWindowStartFormat + '\n' +
+                            'Window end : ' + dateWindowEndFormat + '\n' +
+                            body.results[i].slug + '\n \n');
+                    }
+
+                    const embed = new Discord.RichEmbed()
+                        .setTitle(`*${body.count} planned launch*`)
+                        .setAuthor(bot.user.username, bot.user.avatarURL)
+                        .setColor(0x00AE86)
+                        .setDescription(list)
+                        .setImage("https://blogs.nasa.gov/Rocketology/wp-content/uploads/sites/251/2015/09/NASA-Space-Launch-System-SLS-ascends-through-clouds.jpg")
+                        .setTimestamp()
+                        .addBlankField(true)
+                        .setFooter("Info from Space Launch Now", "https://daszojo4xmsc6.cloudfront.net/static/home/img/launcher.png");
+
+                    msg.channel.send({embed});
+                })
+        }
+    }
 });
 
 
@@ -135,5 +167,5 @@ function commandRefused(msg, command) {
 
 bot.login(config.discord.token).then(() => {
     console.log('Connected');
-bot.channels.get('401045672964390932').send('Hey guys, I\'m connected');
+    bot.channels.get('401045672964390932').send('Hey guys, I\'m connected');
 });
