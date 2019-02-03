@@ -1,0 +1,24 @@
+{
+  "name": "nodediscordbot",
+  "version": "1.0.0",
+  "description": "Just a simple discord bot",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://aina261@bitbucket.org/aina261/nodediscordbot.git"
+  },
+  "author": "Arnaud RAMIARASOA",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/aina261/nodediscordbot#readme",
+  "dependencies": {
+    "bufferutil": "^4.0.1",
+    "cors": "^2.8.5",
+    "dateformat": "^3.0.3",
+    "discord.js": "^11.4.2",
+    "express": "^4.16.4",
+    "request": "^2.88.0"
+  }
+}
