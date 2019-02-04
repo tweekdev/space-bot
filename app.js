@@ -40,60 +40,65 @@ bot.on('ready', function () {
     setInterval(() => {
         request('https://spacelaunchnow.me/3.2.0/launch/upcoming/', {json: true}, (err, res, body) => {
 
-            LaunchInfoLog.findOne({idLaunch: body.results[0].id}).then(launchInfoLog => {
-                if (!launchInfoLog) {
-                    let dateWindowStartFormat = dateFormat(new Date(body.results[0].window_start), 'dd-mm-yyyy hh:MM TT');
-                    let dateWindowEndFormat = dateFormat(new Date(body.results[0].window_end), 'dd-mm-yyyy hh:MM TT');
+            if (new Date(body.results[0].net) < new Date(Date.now() + 24 * 60 * 60 * 1000)) {
+                LaunchInfoLog.findOne({idLaunch: body.results[0].id}).then(launchInfoLog => {
+                    if (!launchInfoLog) {
+                        let dateWindowStartFormat = dateFormat(new Date(body.results[0].window_start), 'dd-mm-yyyy hh:MM TT');
+                        let dateWindowEndFormat = dateFormat(new Date(body.results[0].window_end), 'dd-mm-yyyy hh:MM TT');
 
-                    const info = '**__' + body.results[0].name + '__ \n ' + body.results[0].rocket.configuration.launch_service_provider + '** \n \n' +
-                        '** Pad : ** ' + body.results[0].pad.id + ' ** at ** ' + body.results[0].pad.location.name + '\n' +
-                        '** Mission : ** ' + body.results[0].mission.name + '\n' +
-                        '** Orbit : ** ' + body.results[0].mission.orbit + '\n \n' +
-                        '** Window start : ** ' + dateWindowStartFormat + '\n' +
-                        '** Window end : ** ' + dateWindowEndFormat + '\n \n' +
-                        body.results[0].slug + '\n \n';
+                        const info = '**__' + body.results[0].name + '__ \n ' + body.results[0].rocket.configuration.launch_service_provider + '** \n \n' +
+                            '** Pad : ** ' + body.results[0].pad.id + ' ** at ** ' + body.results[0].pad.location.name + '\n' +
+                            '** Mission : ** ' + body.results[0].mission.name + '\n' +
+                            '** Orbit : ** ' + body.results[0].mission.orbit + '\n \n' +
+                            '** Window start : ** ' + dateWindowStartFormat + '\n' +
+                            '** Window end : ** ' + dateWindowEndFormat + '\n \n' +
+                            body.results[0].slug + '\n \n';
 
-                    const launchInfo = new Discord.RichEmbed()
-                        .setTitle(`:warning: LAUNCH INCOMING`)
-                        .setAuthor(bot.user.username, bot.user.avatarURL)
-                        .setColor(0x00AE86)
-                        .setDescription(info)
-                        .setImage("https://blogs.nasa.gov/Rocketology/wp-content/uploads/sites/251/2015/09/NASA-Space-Launch-System-SLS-ascends-through-clouds.jpg")
-                        .setTimestamp()
-                        .addBlankField(true)
-                        .setFooter("Info from Space Launch Now", "https://daszojo4xmsc6.cloudfront.net/static/home/img/launcher.png");
+                        const launchInfo = new Discord.RichEmbed()
+                            .setTitle(`:warning: LAUNCH INCOMING`)
+                            .setAuthor(bot.user.username, bot.user.avatarURL)
+                            .setColor(0x00AE86)
+                            .setDescription(info)
+                            .setImage("https://blogs.nasa.gov/Rocketology/wp-content/uploads/sites/251/2015/09/NASA-Space-Launch-System-SLS-ascends-through-clouds.jpg")
+                            .setTimestamp()
+                            .addBlankField(true)
+                            .setFooter("Info from Space Launch Now", "https://daszojo4xmsc6.cloudfront.net/static/home/img/launcher.png");
 
-                    bot.channels.get('541709923562815509').send(`<@&541881113229000704>`);
-                    bot.channels.get('541709923562815509').send(launchInfo).then(() => {
+                        bot.channels.get('541709923562815509').send(`<@&541881113229000704>`);
+                        bot.channels.get('541709923562815509').send(launchInfo).then(() => {
 
-                        const idLaunch = body.results[0].id;
-                        const enterprise = body.results[0].rocket.configuration.launch_service_provider;
-                        const mission = body.results[0].mission.name;
-                        const orbit = body.results[0].mission.orbit;
-                        const windowStart = body.results[0].window_start;
-                        const windowEnd = body.results[0].window_end;
+                            const idLaunch = body.results[0].id;
+                            const enterprise = body.results[0].rocket.configuration.launch_service_provider;
+                            const mission = body.results[0].mission.name;
+                            const orbit = body.results[0].mission.orbit;
+                            const windowStart = body.results[0].window_start;
+                            const windowEnd = body.results[0].window_end;
 
-                        const launchInfo = new LaunchInfoLog({
-                            idLaunch,
-                            enterprise,
-                            mission,
-                            orbit,
-                            windowStart,
-                            windowEnd
+                            const launchInfo = new LaunchInfoLog({
+                                idLaunch,
+                                enterprise,
+                                mission,
+                                orbit,
+                                windowStart,
+                                windowEnd
+                            });
+
+                            launchInfo.save().then(info => {
+                                console.log(info);
+                            }).catch(err => {
+                                res.send(err)
+                            })
                         });
-
-                        launchInfo.save().then(info => {
-                            console.log(info);
-                        }).catch(err => {
-                            res.send(err)
-                        })
-                    });
-                } else {
-                    console.log('déjà présent');
-                }
-            });
+                    } else {
+                        console.log('déjà présent');
+                    }
+                });
+            } else {
+                console.log(false);
+            }
         });
     }, 3600000)
+    /* 3600000 */
 });
 
 bot.on('message', msg => {
