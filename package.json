@@ -19,6 +19,7 @@
     "dateformat": "^3.0.3",
     "discord.js": "^11.4.2",
     "express": "^4.16.4",
+    "mongoose": "^5.4.9",
     "request": "^2.88.0"
   }
 }
