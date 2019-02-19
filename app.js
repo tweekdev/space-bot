@@ -166,16 +166,95 @@ bot.on('message', msg => {
                 let list = [];
 
                 for (let i = 0; i < 5; i++) {
-                    let dateWindowStartFormat = dateFormat(new Date(body.results[i].window_start), 'dd-mm-yyyy hh:MM TT');
-                    let dateWindowEndFormat = dateFormat(new Date(body.results[i].window_end), 'dd-mm-yyyy hh:MM TT');
 
-                    list.push('**__' + body.results[i].name + '__ \n ' + body.results[i].rocket.configuration.launch_service_provider + '** \n' +
-                        'Pad ' + body.results[i].pad.id + ' at ' + body.results[i].pad.location.name + '\n' +
-                        'Mission : ' + body.results[i].mission.name + '\n' +
-                        'Orbit : ' + body.results[i].mission.orbit + '\n \n' +
+                    let name;
+                    let launchServiceProvider;
+                    let padId;
+                    let padLocation;
+                    let dateWindowStartFormat;
+                    let mission;
+                    let orbit;
+                    let dateWindowEndFormat;
+                    let slug;
+
+                    if (isset(body.results[i].name)) {
+                        name = body.results[i].name;
+                    } else {
+                        name = '*undefined*';
+                    }
+
+                    if (isset(body.results[i].rocket)) {
+                        if (isset(body.results[i].rocket.configuration)) {
+                            if (isset(body.results[i].rocket.configuration.launch_service_provider)) {
+                                launchServiceProvider = body.results[i].rocket.configuration.launch_service_provider;
+                            } else {
+                                launchServiceProvider = '*undefined*';
+                            }
+                        } else {
+                            launchServiceProvider = '*undefined*';
+                        }
+                    } else {
+                        launchServiceProvider = '*undefined*';
+                    }
+
+                    if (isset(body.results[i].pad)) {
+                        if (isset(body.results[i].pad.id)) {
+                            padId = body.results[i].pad.id;
+                        } else {
+                            padId = '*undefined*';
+                        }
+
+                        if (isset(body.results[i].pad.location.name)) {
+                            padLocation = body.results[i].pad.location.name;
+                        } else {
+                            padLocation = '*undefined*';
+                        }
+                    } else {
+                        padId = '*undefined*';
+                        padLocation = '*undefined*';
+                    }
+
+                    if (isset(body.results[i].mission)) {
+                        if (isset(body.results[i].mission.name)) {
+                            mission = 'Mission : ' + body.results[i].mission.name + '\n';
+                        } else {
+                            mission = 'Mission : ' + '*undefined*' + '\n';
+                        }
+
+                        if (isset(body.results[i].mission.orbit)) {
+                            orbit = 'Orbit : ' + body.results[i].mission.orbit + '\n \n';
+                        } else {
+                            orbit = 'Orbit : ' + '*undefined*' + '\n \n';
+                        }
+                    } else {
+                        mission = 'Mission : ' + '*undefined*' + '\n';
+                        orbit = 'Orbit : ' + '*undefined*' + '\n \n';
+                    }
+
+                    if (isset(body.results[i].window_start)) {
+                        dateWindowStartFormat = dateFormat(new Date(body.results[i].window_start), 'dd-mm-yyyy hh:MM TT');
+                    } else {
+                        dateWindowStartFormat = '*undefined*';
+                    }
+
+                    if (isset(body.results[i].window_end)) {
+                        dateWindowEndFormat = dateFormat(new Date(body.results[i].window_end), 'dd-mm-yyyy hh:MM TT');
+                    } else {
+                        dateWindowEndFormat = '*undefined*';
+                    }
+
+                    if (isset(body.results[i].slug)) {
+                        slug = body.results[i].slug;
+                    } else {
+                        slug = '*undefined*';
+                    }
+
+                    list.push('**__' + name + '__ \n ' + launchServiceProvider + '** \n' +
+                        'Pad ' + padId + ' at ' + padLocation + '\n' +
+                        mission + orbit +
                         'Window start : ' + dateWindowStartFormat + '\n' +
                         'Window end : ' + dateWindowEndFormat + '\n' +
-                        body.results[i].slug + '\n \n');
+                        slug + '\n \n');
                 }
 
                 const embed = new Discord.RichEmbed()
@@ -223,6 +302,10 @@ function uptime() {
 function commandRefused(msg, command) {
     msg.channel.send('Command not authorized');
     bot.channels.get('401045672964390932').send('`' + msg.author.tag + '` try to use `' + command + '` command.')
+}
+
+function isset(data) {
+    return !(data === undefined || data === null || data === 'null')
 }
 
 bot.login(config.discord.token).then(() => {
