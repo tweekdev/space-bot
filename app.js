@@ -3,6 +3,8 @@
 const mongoose = require('mongoose');
 const Discord = require('discord.js');
 const config = require('./config');
+const embedLaunch = require('./modules/embedLaunch');
+const launchInfoModule = require('./modules/launchInfo');
 
 const dateFormat = require('dateformat');
 
@@ -27,7 +29,7 @@ bot.on('ready', function () {
             console.log('DB SpaceBot connexion was not established : ' + err)
         });
 
-    bot.user.setActivity('T\'es moche Sh0t`', {type: 'PLAYING'})
+    bot.user.setActivity('Tyé moche Sh0t`', {type: 'PLAYING'})
         .then(
             presence => console.log(`Activity set to ${presence.game ? presence.game.name : 'none'}`)
         )
@@ -40,77 +42,7 @@ bot.on('ready', function () {
     setInterval(() => {
 
         LaunchInfoLog.find().then(launchInfo => {
-
-            request('https://spacelaunchnow.me/3.2.0/launch/upcoming/', {json: true}, (err, res, body) => {
-
-                if (launchInfo[0] !== undefined && body.results[0].id !== launchInfo[0].idLaunch) {
-                    LaunchInfoLog.findOneAndDelete({_id: launchInfo[0]._id})
-                        .then(() => {
-                            console.log('delete launch');
-                        });
-
-                } else {
-                    if (new Date(body.results[0].net) < new Date(Date.now() + 24 * 60 * 60 * 1000)) {
-                        LaunchInfoLog.findOne({idLaunch: body.results[0].id}).then(launchInfoLog => {
-                            if (!launchInfoLog) {
-                                let dateWindowStartFormat = dateFormat(new Date(body.results[0].window_start), 'dd-mm-yyyy hh:MM TT');
-                                let dateWindowEndFormat = dateFormat(new Date(body.results[0].window_end), 'dd-mm-yyyy hh:MM TT');
-
-                                const info = '**__' + body.results[0].name + '__ \n ' + body.results[0].rocket.configuration.launch_service_provider + '** \n \n' +
-                                    '** Pad : ** ' + body.results[0].pad.id + ' ** at ** ' + body.results[0].pad.location.name + '\n' +
-                                    '** Mission : ** ' + body.results[0].mission.name + '\n' +
-                                    '** Orbit : ** ' + body.results[0].mission.orbit + '\n \n' +
-                                    '** Window start : ** ' + dateWindowStartFormat + '\n' +
-                                    '** Window end : ** ' + dateWindowEndFormat + '\n \n' +
-                                    body.results[0].slug + '\n \n';
-
-                                const launchInfo = new Discord.RichEmbed()
-                                    .setTitle(`:warning: LAUNCH INCOMING`)
-                                    .setAuthor(bot.user.username, bot.user.avatarURL)
-                                    .setColor(0x00AE86)
-                                    .setDescription(info)
-                                    .setImage("https://blogs.nasa.gov/Rocketology/wp-content/uploads/sites/251/2015/09/NASA-Space-Launch-System-SLS-ascends-through-clouds.jpg")
-                                    .setTimestamp()
-                                    .addBlankField(true)
-                                    .setFooter("Info from Space Launch Now", "https://daszojo4xmsc6.cloudfront.net/static/home/img/launcher.png");
-
-                                bot.channels.get('541709923562815509').send(`<@&541881113229000704>`)
-                                    .then(() => {
-                                        bot.channels.get('541709923562815509').send(launchInfo).then(() => {
-
-                                            const idLaunch = body.results[0].id;
-                                            const enterprise = body.results[0].rocket.configuration.launch_service_provider;
-                                            const mission = body.results[0].mission.name;
-                                            const orbit = body.results[0].mission.orbit;
-                                            const windowStart = body.results[0].window_start;
-                                            const windowEnd = body.results[0].window_end;
-
-                                            const launchInfo = new LaunchInfoLog({
-                                                idLaunch,
-                                                enterprise,
-                                                mission,
-                                                orbit,
-                                                windowStart,
-                                                windowEnd
-                                            });
-
-                                            launchInfo.save().then(info => {
-                                                console.log(info);
-                                            }).catch(err => {
-                                                console.log(err)
-                                            })
-                                        });
-                                    });
-
-                            } else {
-                                console.log('déjà présent');
-                            }
-                        });
-                    } else {
-                        console.log(false);
-                    }
-                }
-            });
+            launchInfoModule.launchInfoLog(request, LaunchInfoLog, launchInfo, Discord, bot);
         })
             .catch(console.error);
 
@@ -131,6 +63,7 @@ bot.on('message', msg => {
                     second = 0;
                     minute = 0;
                     hour = 0;
+                    day = 0;
                     bot.login(config.discord.token).then(() => {
                         console.log('Connected');
                         msg.channel.send('I\'m back !');
@@ -159,116 +92,7 @@ bot.on('message', msg => {
             break;
 
         case 'launch':
-            request('https://spacelaunchnow.me/3.2.0/launch/upcoming/', {json: true}, (err, res, body) => {
-                if (err) {
-                    msg.channel.send(err);
-                }
-                let list = [];
-
-                for (let i = 0; i < 5; i++) {
-
-                    let name;
-                    let launchServiceProvider;
-                    let padId;
-                    let padLocation;
-                    let dateWindowStartFormat;
-                    let mission;
-                    let orbit;
-                    let dateWindowEndFormat;
-                    let slug;
-
-                    if (isset(body.results[i].name)) {
-                        name = body.results[i].name;
-                    } else {
-                        name = '*undefined*';
-                    }
-
-                    if (isset(body.results[i].rocket)) {
-                        if (isset(body.results[i].rocket.configuration)) {
-                            if (isset(body.results[i].rocket.configuration.launch_service_provider)) {
-                                launchServiceProvider = body.results[i].rocket.configuration.launch_service_provider;
-                            } else {
-                                launchServiceProvider = '*undefined*';
-                            }
-                        } else {
-                            launchServiceProvider = '*undefined*';
-                        }
-                    } else {
-                        launchServiceProvider = '*undefined*';
-                    }
-
-                    if (isset(body.results[i].pad)) {
-                        if (isset(body.results[i].pad.id)) {
-                            padId = body.results[i].pad.id;
-                        } else {
-                            padId = '*undefined*';
-                        }
-
-                        if (isset(body.results[i].pad.location.name)) {
-                            padLocation = body.results[i].pad.location.name;
-                        } else {
-                            padLocation = '*undefined*';
-                        }
-                    } else {
-                        padId = '*undefined*';
-                        padLocation = '*undefined*';
-                    }
-
-                    if (isset(body.results[i].mission)) {
-                        if (isset(body.results[i].mission.name)) {
-                            mission = 'Mission : ' + body.results[i].mission.name + '\n';
-                        } else {
-                            mission = 'Mission : ' + '*undefined*' + '\n';
-                        }
-
-                        if (isset(body.results[i].mission.orbit)) {
-                            orbit = 'Orbit : ' + body.results[i].mission.orbit + '\n \n';
-                        } else {
-                            orbit = 'Orbit : ' + '*undefined*' + '\n \n';
-                        }
-                    } else {
-                        mission = 'Mission : ' + '*undefined*' + '\n';
-                        orbit = 'Orbit : ' + '*undefined*' + '\n \n';
-                    }
-
-                    if (isset(body.results[i].window_start)) {
-                        dateWindowStartFormat = dateFormat(new Date(body.results[i].window_start), 'dd-mm-yyyy hh:MM TT');
-                    } else {
-                        dateWindowStartFormat = '*undefined*';
-                    }
-
-                    if (isset(body.results[i].window_end)) {
-                        dateWindowEndFormat = dateFormat(new Date(body.results[i].window_end), 'dd-mm-yyyy hh:MM TT');
-                    } else {
-                        dateWindowEndFormat = '*undefined*';
-                    }
-
-                    if (isset(body.results[i].slug)) {
-                        slug = body.results[i].slug;
-                    } else {
-                        slug = '*undefined*';
-                    }
-
-                    list.push('**__' + name + '__ \n ' + launchServiceProvider + '** \n' +
-                        'Pad ' + padId + ' at ' + padLocation + '\n' +
-                        mission + orbit +
-                        'Window start : ' + dateWindowStartFormat + '\n' +
-                        'Window end : ' + dateWindowEndFormat + '\n' +
-                        slug + '\n \n');
-                }
-
-                const embed = new Discord.RichEmbed()
-                    .setTitle(`*${body.count} planned launch*`)
-                    .setAuthor(bot.user.username, bot.user.avatarURL)
-                    .setColor(0x00AE86)
-                    .setDescription(list)
-                    .setImage("https://blogs.nasa.gov/Rocketology/wp-content/uploads/sites/251/2015/09/NASA-Space-Launch-System-SLS-ascends-through-clouds.jpg")
-                    .setTimestamp()
-                    .addBlankField(true)
-                    .setFooter("Info from Space Launch Now", "https://daszojo4xmsc6.cloudfront.net/static/home/img/launcher.png");
-
-                msg.channel.send({embed});
-            })
+           embedLaunch.embed(dateFormat, request, msg, Discord, bot);
     }
 });
 
@@ -285,6 +109,7 @@ bot.on('guildMemberRemove', user => {
 let second = 0;
 let minute = 0;
 let hour = 0;
+let day = 0;
 
 function uptime() {
     second++;
@@ -296,7 +121,12 @@ function uptime() {
         hour++;
         minute = 0
     }
-    return ('I\'m connected since ' + hour + ' hours, ' + minute + ' minutes and ' + second + ' seconds.')
+
+    if (hour === 60) {
+        day++;
+        hour = 0
+    }
+    return ('I\'m connected since ' + day + ' days, ' + hour + ' hours, ' + minute + ' minutes and ' + second + ' seconds.')
 }
 
 function commandRefused(msg, command) {
