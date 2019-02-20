@@ -53,12 +53,19 @@ bot.on('ready', function () {
         uptime();
     }, 1000);
 
+    setImmediate( () => {
+        LaunchInfoLog.find().then(launchInfo => {
+            launchInfoModule.launchInfoLog(request, LaunchInfoLog, launchInfo, Discord, bot);
+        })
+            .catch( log.sendLog(bot, 'Launch info error') );
+    });
+
     setInterval(() => {
 
         LaunchInfoLog.find().then(launchInfo => {
             launchInfoModule.launchInfoLog(request, LaunchInfoLog, launchInfo, Discord, bot);
         })
-            .catch(console.error);
+            .catch( log.sendLog(bot, 'Launch info error') );
 
     }, 3600000)
     /* 3600000 */

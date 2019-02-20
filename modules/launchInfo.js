@@ -1,6 +1,7 @@
 'use strict';
 
 const dateFormat = require('dateformat');
+const log = require('./log');
 
 module.exports = {
     launchInfoLog: (request, LaunchInfoLog, launchInfo, Discord, bot, msg) => {
@@ -113,10 +114,10 @@ module.exports = {
                         }
 
                         if (new Date(body.results[i].net) < new Date(Date.now() + 24 * 60 * 60 * 1000)) {
-                            LaunchInfoLog.findOne({idLaunch: body.results[0].id}).then(launchInfoLog => {
+                            LaunchInfoLog.findOne({idLaunch: body.results[i].id}).then(launchInfoLog => {
                                 if (!launchInfoLog) {
-                                    let dateWindowStartFormat = dateFormat(new Date(body.results[0].window_start), 'dd-mm-yyyy hh:MM TT');
-                                    let dateWindowEndFormat = dateFormat(new Date(body.results[0].window_end), 'dd-mm-yyyy hh:MM TT');
+                                    let dateWindowStartFormat = dateFormat(new Date(body.results[i].window_start), 'dd-mm-yyyy hh:MM TT');
+                                    let dateWindowEndFormat = dateFormat(new Date(body.results[i].window_end), 'dd-mm-yyyy hh:MM TT');
 
                                     list.push('**__' + name + '__ \n ' + launchServiceProvider + '** \n' +
                                         'Pad ' + padId + ' at ' + padLocation + '\n' +
@@ -125,7 +126,7 @@ module.exports = {
                                         'Window end : ' + dateWindowEndFormat + '\n' +
                                         slug + '\n \n');
 
-                                    const launchInfo = new Discord.RichEmbed()
+                                    const launchInfoEmbed = new Discord.RichEmbed()
                                         .setTitle(`:warning: LAUNCH INCOMING`)
                                         .setAuthor(bot.user.username, bot.user.avatarURL)
                                         .setColor(0x00AE86)
@@ -135,33 +136,34 @@ module.exports = {
                                         .addBlankField(true)
                                         .setFooter("Info from Space Launch Now", "https://daszojo4xmsc6.cloudfront.net/static/home/img/launcher.png");
 
-                                    bot.channels.get('541709923562815509').send(`<@&541881113229000704>`)
-                                        .then(() => {
-                                            bot.channels.get('541709923562815509').send(launchInfo).then(() => {
+                                    const idLaunch = body.results[i].id;
+                                    const enterprise = launchServiceProvider;
+                                    const windowStart = dateWindowStartFormat;
+                                    const windowEnd = dateWindowEndFormat;
 
-                                                const idLaunch = body.results[0].id;
-                                                const enterprise = launchServiceProvider;
-                                                const mission = mission;
-                                                const orbit = orbit;
-                                                const windowStart = dateWindowStartFormat;
-                                                const windowEnd = dateWindowEndFormat;
+                                    const launchInfo = new LaunchInfoLog({
+                                        idLaunch,
+                                        enterprise,
+                                        mission,
+                                        orbit,
+                                        windowStart,
+                                        windowEnd
+                                    });
 
-                                                const launchInfo = new LaunchInfoLog({
-                                                    idLaunch,
-                                                    enterprise,
-                                                    mission,
-                                                    orbit,
-                                                    windowStart,
-                                                    windowEnd
+                                    console.log(launchInfo);
+
+                                    launchInfo.save().then( () => {
+                                        bot.channels.get('541709923562815509').send(`<@&541881113229000704>`)
+                                            .then(() => {
+                                                bot.channels.get('541709923562815509').send(launchInfoEmbed).then(() => {
+                                                    log.sendLog(bot, 'Send launch reminder')
                                                 });
-
-                                                launchInfo.save().then(info => {
-                                                    console.log(info);
-                                                }).catch(err => {
-                                                    console.log(err)
-                                                })
                                             });
-                                        });
+                                    }).catch(err => {
+                                        log.sendLog(bot, err);
+                                    });
+
+
 
                                 } else {
                                     console.log('déjà présent');
