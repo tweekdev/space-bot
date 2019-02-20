@@ -153,9 +153,9 @@ module.exports = {
                                     console.log(launchInfo);
 
                                     launchInfo.save().then( () => {
-                                        bot.channels.get('541709923562815509').send(`<@&541881113229000704>`)
+                                        bot.channels.get('547840543812485130').send(`<@&541881113229000704>`)
                                             .then(() => {
-                                                bot.channels.get('541709923562815509').send(launchInfoEmbed).then(() => {
+                                                bot.channels.get('547840543812485130').send(launchInfoEmbed).then(() => {
                                                     log.sendLog(bot, 'Send launch reminder')
                                                 });
                                             });
