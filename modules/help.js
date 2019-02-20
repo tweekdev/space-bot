@@ -17,6 +17,8 @@ module.exports = {
             .addField(tag + 'js', 'Add or remove js role')
             .addField(tag + 'launchInfo', 'Add or remove launchInfo role')
             .addField(tag + 'launch', 'Send 5 last programmed launch')
+            .addField('@Space Bot : say : { channel id } : { your message }', 'Send message to specify channel')
+            .addField('@Space Bot : gamePresence : { Your game } : { Type (Playing, Watching, Streaming, Listening) }', 'Change the game presence status')
 
             .setTimestamp()
             .addBlankField(true)

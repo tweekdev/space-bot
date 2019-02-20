@@ -53,11 +53,10 @@ bot.on('ready', function () {
         uptime();
     }, 1000);
 
-    setImmediate( () => {
+    setImmediate(() => {
         LaunchInfoLog.find().then(launchInfo => {
             launchInfoModule.launchInfoLog(request, LaunchInfoLog, launchInfo, Discord, bot);
         })
-            .catch( log.sendLog(bot, 'Launch info error') );
     });
 
     setInterval(() => {
@@ -65,54 +64,80 @@ bot.on('ready', function () {
         LaunchInfoLog.find().then(launchInfo => {
             launchInfoModule.launchInfoLog(request, LaunchInfoLog, launchInfo, Discord, bot);
         })
-            .catch( log.sendLog(bot, 'Launch info error') );
 
     }, 3600000)
     /* 3600000 */
 });
 
 bot.on('message', msg => {
+    /*console.log(msg);*/
     if (msg.author.id === '539008508218310678') return;
     if (!msg.guild) return;
 
-    if (msg.content.startsWith(tag + 'gamePresence')) {
-        let gameMsg = msg.content.split( ':');
 
-        if (gameMsg[2] !== undefined && gameMsg[2].trim().toUpperCase() !== ('PLAYING' || 'WATCHING' || 'STREAMING' || 'LISTENING')) {
-            msg.reply('Type reference is not valid, activity can\'t be set. Please use Playing, Watching, Streaming, Listening or nothing')
+    if (msg.content.toLowerCase().startsWith('<@539008508218310678>')) {
+        let messageSay = msg.content.split(':');
+        console.log(messageSay);
 
-        } else {
-            if (gameMsg[2] === undefined) {
-                gameMsg[2] = 'PLAYING';
-            }
+        switch (messageSay[1].trim()) {
+            case 'say':
+                bot.channels.get(messageSay[2].trim()).send(messageSay[3].trim()).then(() => {
+                    log.sendLog(bot, msg.author.name + " request to send `" + messageSay[3].trim() + '` in `' + messageSay[2].trim() + '` channel ID')
+                });
+                break;
 
-            bot.user.setActivity(gameMsg[1].trim(), {type: gameMsg[2].trim().toUpperCase()})
-                .then(
-                    presence => {
+            case 'gamePresence':
+                const game = messageSay[2].trim();
+                let type;
+                if (isset(messageSay[3])) {
+                    type = messageSay[3].trim().toUpperCase();
+                } else {
+                    type = 'PLAYING'
+                }
 
-                        const game = gameMsg[1].trim();
-                        const type = gameMsg[2].trim().toUpperCase();
-                        const gamePresenceLog = new gamePresence({
-                            game,
-                            type
-                        });
+                if (type !== 'PLAYING' && type !== 'WATCHING' && type !== 'STREAMING' && type !== 'LISTENING') {
+                    msg.reply('Type reference is not valid, activity can\'t be set. Please use Playing, Watching, Streaming, Listening or nothing')
 
-                        gamePresenceLog.save().then( () => {
-                            msg.reply(`Activity set to ${presence.game ? presence.game.name : 'none'}`);
-                            log.sendLog(bot, `Activity set to ${presence.game ? presence.game.name : 'none'}`);
-                        })
-                    }
-                )
-                .catch(console.error);
+                } else {
+
+                    bot.user.setActivity(game, {type: type})
+                        .then(
+                            presence => {
+                                const gamePresenceLog = new gamePresence({
+                                    game,
+                                    type
+                                });
+
+                                gamePresenceLog.save().then(() => {
+
+                                    if (presence.game.type === 0) {
+                                        type = 'PLAYING'
+                                    }
+                                    if (presence.game.type === 1) {
+                                        type = 'STREAMING'
+                                    }
+                                    if (presence.game.type === 2) {
+                                        type = 'LISTENING'
+                                    }
+                                    if (presence.game.type === 3) {
+                                        type = 'WATCHING'
+                                    }
+                                    msg.reply(`Activity set to ${presence.game ? presence.game.name : 'none'} with ${type} type`);
+                                    log.sendLog(bot, `Activity set to ${presence.game ? presence.game.name : 'none'} with ${type} type`);
+                                })
+                            }
+                        )
+                        .catch(console.error);
+                }
         }
     }
 
-    switch (msg.content.toLowerCase()) {
 
+    switch (msg.content.toLowerCase()) {
         case 'tag':
-            msg.channel.send('The command tag is `' + tag + '`' );
+            msg.channel.send('The command tag is `' + tag + '`');
             break;
-        
+
         case tag + 'help':
             help.sendEmbed(bot, Discord, msg, tag);
             break;
