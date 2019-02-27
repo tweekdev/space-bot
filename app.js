@@ -25,35 +25,12 @@ const bot = new Discord.Client();
 
 const tag = '!';
 
-bot.on('ready', function () {
-
-    mongoose.connect(config.db.mongoUri, {useNewUrlParser: true,})
-        .then(() => {
-            log.sendLog(bot, 'DB SpaceBot connexion established');
-
-            gamePresence.find().sort({_id: -1}).limit(1).then(data => {
-                    if (data) {
-                        bot.user.setActivity(data[0].game, {type: data[0].type})
-                            .then(
-                                presence => {
-                                    log.sendLog(bot, `Activity set to ${presence.game ? presence.game.name : 'none'}`)
-                                }
-                            )
-                            .catch(console.error);
-                    }
-                }
-            );
-
-        })
-        .catch(err => {
-            log.sendLog(bot, 'DB SpaceBot connexion was not established : ' + err);
-        });
-
+bot.on('ready', () => {
     setInterval(() => {
         uptime();
     }, 1000);
 
-    setImmediate(() => {
+    setImmediate( () => {
         LaunchInfoLog.find().then(launchInfo => {
             launchInfoModule.launchInfoLog(request, LaunchInfoLog, launchInfo, Discord, bot);
         })
@@ -65,8 +42,34 @@ bot.on('ready', function () {
             launchInfoModule.launchInfoLog(request, LaunchInfoLog, launchInfo, Discord, bot);
         })
 
-    }, 3600000)
+    }, 3600000);
     /* 3600000 */
+
+    setInterval( () => {
+        if (new Date().getHours() === 9) {
+            if (new Date().getMinutes() === 0) {
+                request(`https://api.nasa.gov/planetary/apod?api_key=${config.nasa.apiKey}`, {json: true}, (err, res, body) => {
+                    const apod = new Discord.RichEmbed()
+                        .setTitle('New NASA apod incoming')
+                        .setAuthor(bot.user.username, bot.user.avatarURL)
+                        .setColor(0x73ff60)
+                        .setDescription(body.date)
+                        .setImage(body.url)
+                        .setTimestamp()
+                        .addField(body.title, body.explanation)
+                        .setFooter('Astronomy picture of the day : APOD', 'https://www.nasa.gov/sites/all/themes/custom/nasatwo/images/nasa-logo.svg');
+
+                    bot.channels.get('550286483739639808').send('<@&550294391642652702>').then(
+                        bot.channels.get('550286483739639808').send(apod).then( () => {
+                            log.sendLog(bot, 'Send new Apod');
+                        })
+                    );
+
+                });
+            }
+        }
+    }, 60000);
+
 });
 
 bot.on('message', msg => {
@@ -207,6 +210,16 @@ bot.on('guildMemberRemove', user => {
 });
 
 
+
+function commandRefused(msg, command) {
+    msg.channel.send('Command not authorized');
+    bot.channels.get('401045672964390932').send('`' + msg.author.tag + '` try to use `' + command + '` command.')
+}
+
+function isset(data) {
+    return !(data === undefined || data === null || data === 'null')
+}
+
 let second = 0;
 let minute = 0;
 let hour = 0;
@@ -230,16 +243,29 @@ function uptime() {
     return ('I\'m connected since ' + day + ' days, ' + hour + ' hours, ' + minute + ' minutes and ' + second + ' seconds.')
 }
 
-function commandRefused(msg, command) {
-    msg.channel.send('Command not authorized');
-    bot.channels.get('401045672964390932').send('`' + msg.author.tag + '` try to use `' + command + '` command.')
-}
-
-function isset(data) {
-    return !(data === undefined || data === null || data === 'null')
-}
-
 bot.login(config.discord.token).then(() => {
     console.log('Connected');
     log.sendLog(bot, 'Connected');
+
+    mongoose.connect(config.db.mongoUri, {useNewUrlParser: true,})
+        .then(() => {
+            log.sendLog(bot, 'DB SpaceBot connexion established');
+
+            gamePresence.find().sort({_id: -1}).limit(1).then(data => {
+                    if (data) {
+                        bot.user.setActivity(data[0].game, {type: data[0].type})
+                            .then(
+                                presence => {
+                                    log.sendLog(bot, `Activity set to ${presence.game ? presence.game.name : 'none'}`)
+                                }
+                            )
+                            .catch(console.error);
+                    }
+                }
+            );
+
+        })
+        .catch(err => {
+            log.sendLog(bot, 'DB SpaceBot connexion was not established : ' + err);
+        });
 });

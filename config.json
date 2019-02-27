@@ -5,6 +5,9 @@
   },
   "db": {
     "mongoUri": "mongodb://aina261SpaceBot:SDGF824sdt@ds223605.mlab.com:23605/space_bot"
-  }
+  },
+  "nasa": {
+    "apiKey": "E2GH8d7a0DjJFsr4IUdPr7rUpqXgXjmG3tyVVJqZ"
+}
 
 }

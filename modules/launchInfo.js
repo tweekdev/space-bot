@@ -14,7 +14,7 @@ module.exports = {
         request('https://spacelaunchnow.me/3.2.0/launch/upcoming/', {json: true}, (err, res, body) => {
 
             if (body.detail === 'Not found.') {
-                console.log('No API response');
+                log.sendLog('No API response');
                 msg.channel.send('ERROR: No API response * launchInfo *');
 
             } else {
@@ -22,7 +22,7 @@ module.exports = {
                 if (launchInfo[0] !== undefined && body.results[0].id !== launchInfo[0].idLaunch) {
                     LaunchInfoLog.findOneAndDelete({_id: launchInfo[0]._id})
                         .then(() => {
-                            console.log('delete launch');
+                            log.sendLog('delete launch');
                         });
 
                 } else {
