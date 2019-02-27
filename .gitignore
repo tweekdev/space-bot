@@ -72,4 +72,4 @@ gen
 .gitignore
 .idea/
 
-config.json
+./config.json
