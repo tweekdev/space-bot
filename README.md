@@ -23,7 +23,7 @@ Generate your config.json file
     "mongoUri": "Your mongo db URI"
   },
   "nasa": {
-    "apiKey": "Your nasa api key"
+    "apiKey": "Your nasa api key. Get here https://api.nasa.gov/index.html#apply-for-an-api-key"
   }
 }
 
