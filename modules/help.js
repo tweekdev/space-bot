@@ -14,7 +14,6 @@ module.exports = {
             .addField(tag + 'ping', 'Reply pong !')
             .addField(tag + 'uptime', 'Send uptime connexion')
             .addField('ah!', 'No word for this shit')
-            .addField(tag + 'js', 'Add or remove js role')
             .addField(tag + 'launchInfo', 'Add or remove launchInfo role')
             .addField(tag + 'launch', 'Send 5 last programmed launch')
             .addField('@Space Bot : say : { channel id } : { your message }', 'Send message to specify channel')

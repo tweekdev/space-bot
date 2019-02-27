@@ -59,8 +59,8 @@ bot.on('ready', () => {
                         .addField(body.title, body.explanation)
                         .setFooter('Astronomy picture of the day : APOD', 'https://www.nasa.gov/sites/all/themes/custom/nasatwo/images/nasa-logo.svg');
 
-                    bot.channels.get('550286483739639808').send('<@&550294391642652702>').then(
-                        bot.channels.get('550286483739639808').send(apod).then( () => {
+                    bot.channels.get(config.discord.channels.nasaApod).send(`<@&${config.discord.roles.apod}>`).then(
+                        bot.channels.get(config.discord.channels.nasaApod).send(apod).then( () => {
                             log.sendLog(bot, 'Send new Apod');
                         })
                     );
@@ -74,11 +74,11 @@ bot.on('ready', () => {
 
 bot.on('message', msg => {
     /*console.log(msg);*/
-    if (msg.author.id === '539008508218310678') return;
+    if (msg.author.id === config.discord.botId) return;
     if (!msg.guild) return;
 
 
-    if (msg.content.toLowerCase().startsWith('<@539008508218310678>')) {
+    if (msg.content.toLowerCase().startsWith(`<@${config.discord.botId}>`)) {
         let messageSay = msg.content.split(':');
         console.log(messageSay);
 
@@ -146,7 +146,7 @@ bot.on('message', msg => {
             break;
 
         case tag + 'reload':
-            if (msg.author.id === '275641123576479745') {
+            if (msg.author.id === config.discord.ownerId) {
                 msg.channel.send('Ok, i\'m reload');
                 bot.destroy().then(() => {
                     second = 0;
@@ -176,19 +176,11 @@ bot.on('message', msg => {
             msg.channel.send(`${emojiAh} ah!`);
             break;
 
-        case tag + 'js':
-            if (msg.member.roles.has('539445519957753866')) {
-                msg.member.removeRole('539445519957753866').then(msg.reply('The role has been remove'));
-            } else {
-                msg.member.addRole('539445519957753866').then(msg.reply('The role has been added'));
-            }
-            break;
-
         case tag + 'launchInfo':
-            if (msg.member.roles.has('541881113229000704')) {
-                msg.member.removeRole('541881113229000704').then(msg.reply('The role has been remove'));
+            if (msg.member.roles.has(config.discord.roles.launchInformation)) {
+                msg.member.removeRole(config.discord.roles.launchInformation).then(msg.reply('The role has been remove'));
             } else {
-                msg.member.addRole('541881113229000704').then(msg.reply('The role has been added'));
+                msg.member.addRole(config.discord.roles.launchInformation).then(msg.reply('The role has been added'));
             }
             break;
 
@@ -200,12 +192,12 @@ bot.on('message', msg => {
 
 
 bot.on('guildMemberAdd', user => {
-    bot.channels.get('401045672964390932').send(user + ' has arrived on the server');
+    bot.channels.get(config.discord.channels.welcome).send(user + ' has arrived on the server');
     log.sendLog(bot, user + ' has arrived on the server')
 });
 
 bot.on('guildMemberRemove', user => {
-    bot.channels.get('401045672964390932').send(user + ' has been left the server');
+    bot.channels.get(config.discord.channels.welcome).send(user + ' has been left the server');
     log.sendLog(bot, user + ' has been left the server')
 });
 
@@ -213,7 +205,7 @@ bot.on('guildMemberRemove', user => {
 
 function commandRefused(msg, command) {
     msg.channel.send('Command not authorized');
-    bot.channels.get('401045672964390932').send('`' + msg.author.tag + '` try to use `' + command + '` command.')
+    log.sendLog(bot, '`' + msg.author.tag + '` try to use `' + command + '` command.');
 }
 
 function isset(data) {

@@ -2,6 +2,7 @@
 
 const dateFormat = require('dateformat');
 const log = require('./log');
+const config = require('../config.json');
 
 module.exports = {
     launchInfoLog: (request, LaunchInfoLog, launchInfo, Discord, bot, msg) => {
@@ -153,9 +154,9 @@ module.exports = {
                                     console.log(launchInfo);
 
                                     launchInfo.save().then( () => {
-                                        bot.channels.get('547840543812485130').send(`<@&541881113229000704>`)
+                                        bot.channels.get(config.discord.channels.infoLaunch).send(`<@&${config.discord.roles.launchInformation}>`)
                                             .then(() => {
-                                                bot.channels.get('547840543812485130').send(launchInfoEmbed).then(() => {
+                                                bot.channels.get(config.discord.channels.infoLaunch).send(launchInfoEmbed).then(() => {
                                                     log.sendLog(bot, 'Send launch reminder')
                                                 });
                                             });
