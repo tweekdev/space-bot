@@ -1,5 +1,4 @@
 {
-
   "discord": {
     "token": "NTM5MDA4NTA4MjE4MzEwNjc4.Dy8RPw.V7QJWPAsfxDcIDi0ROlaFc3r2sY"
   },
@@ -8,6 +7,5 @@
   },
   "nasa": {
     "apiKey": "E2GH8d7a0DjJFsr4IUdPr7rUpqXgXjmG3tyVVJqZ"
-}
-
+  }
 }
