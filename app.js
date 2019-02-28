@@ -176,7 +176,7 @@ bot.on('message', msg => {
             msg.channel.send(`${emojiAh} ah!`);
             break;
 
-        case tag + 'launchInfo':
+        case tag + 'launch-info':
             if (msg.member.roles.has(config.discord.roles.launchInformation)) {
                 msg.member.removeRole(config.discord.roles.launchInformation).then(msg.reply('The role has been remove'));
             } else {
