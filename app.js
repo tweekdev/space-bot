@@ -8,9 +8,9 @@ const log = require('./modules/log');
 const embedLaunch = require('./modules/embedLaunch');
 const launchInfoModule = require('./modules/launchInfo');
 const help = require('./modules/help');
+const apod = require('./modules/apod');
 
 const dateFormat = require('dateformat');
-
 const express = require('express');
 const LaunchInfoLog = require('./models/launchInfoLogModel');
 const gamePresence = require('./models/gamePresenceModel');
@@ -48,33 +48,7 @@ bot.on('ready', () => {
     setInterval( () => {
         if (new Date().getHours() === 9) {
             if (new Date().getMinutes() === 0) {
-                request(`https://api.nasa.gov/planetary/apod?api_key=${config.nasa.apiKey}`, {json: true}, (err, res, body) => {
-
-                    let explanationApod;
-                    if (body.explanation.length >= 1000) {
-                        explanationApod = body.explanation.substring(0, 1000) + ' [...]';
-                    } else {
-                        explanationApod = body.explanation;
-                    }
-
-                    const apod = new Discord.RichEmbed()
-                        .setTitle('New NASA apod incoming')
-                        .setAuthor(bot.user.username, bot.user.avatarURL)
-                        .setColor(0x73ff60)
-                        .setDescription(body.date)
-                        .setImage(body.url)
-                        .setTimestamp()
-                        .addField(body.title, explanationApod)
-                        .addField('Original information', 'https://apod.nasa.gov/apod/astropix.html')
-                        .setFooter('Astronomy picture of the day : APOD', 'http://www.laboiteverte.fr/wp-content/uploads/2015/09/nasa-logo-1280x1059.png');
-
-                    bot.channels.get(config.discord.channels.nasaApod).send(`<@&${config.discord.roles.apod}>`).then(
-                        bot.channels.get(config.discord.channels.nasaApod).send(apod).then( () => {
-                            log.sendLog(bot, 'Send new Apod');
-                        })
-                    );
-
-                });
+                apod.sendApod(config, request, Discord, bot, log);
             }
         }
     }, 60000);
@@ -141,6 +115,12 @@ bot.on('message', msg => {
                         )
                         .catch(console.error);
                 }
+                break;
+
+        case 'sendApod':
+            apod.sendApod(config, request, Discord, bot, log);
+
+            break;
         }
     }
 
