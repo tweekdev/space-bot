@@ -1,21 +1,20 @@
 'use strict';
 
 module.exports = {
-    sendEmbed: (bot, Discord, msg, tag) => {
+    sendEmbed: (bot, Discord, msg, prefix) => {
         const help = new Discord.RichEmbed()
             .setTitle(`:warning: Help for bot command`)
             .setAuthor(bot.user.username, bot.user.avatarURL)
             .setColor(0x20fc20)
             .setThumbnail("https://thumbs.gfycat.com/UnripeAdoredGrayreefshark-max-1mb.gif")
 
-            .addField('tag', 'Send tag info')
-            .addField(tag + 'help', 'Reply help for bot command')
-            .addField(tag + 'reload', 'Reload API connexion')
-            .addField(tag + 'ping', 'Reply pong !')
-            .addField(tag + 'uptime', 'Send uptime connexion')
+            .addField('Prefix', 'Send prefix info')
+            .addField(prefix + 'help', 'Reply help for bot command')
+            .addField(prefix + 'reload', 'Reload API connexion')
+            .addField(prefix + 'uptime', 'Send uptime connexion')
             .addField('ah!', 'No word for this shit')
-            .addField(tag + 'launch-info', 'Add or remove launchInfo role')
-            .addField(tag + 'launch', 'Send 5 last programmed launch')
+            .addField(prefix + 'launch-info', 'Add or remove launchInfo role')
+            .addField(prefix + 'launch', 'Send 5 last programmed launch')
             .addField('@Space Bot : say : { channel id } : { your message }', 'Send message to specify channel')
             .addField('@Space Bot : gamePresence : { Your game } : { Type (Playing, Watching, Streaming, Listening) }', 'Change the game presence status')
 

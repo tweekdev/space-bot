@@ -23,47 +23,15 @@ app.use(cors());
 
 const bot = new Discord.Client();
 
-const tag = '!';
-
-bot.on('ready', () => {
-    setInterval(() => {
-        uptime();
-    }, 1000);
-
-    setImmediate( () => {
-        LaunchInfoLog.find().then(launchInfo => {
-            launchInfoModule.launchInfoLog(request, LaunchInfoLog, launchInfo, Discord, bot);
-        })
-    });
-
-    setInterval(() => {
-
-        LaunchInfoLog.find().then(launchInfo => {
-            launchInfoModule.launchInfoLog(request, LaunchInfoLog, launchInfo, Discord, bot);
-        })
-
-    }, 3600000);
-    /* 3600000 */
-
-    setInterval( () => {
-        if (new Date().getHours() === 9) {
-            if (new Date().getMinutes() === 0) {
-                apod.sendApod(config, request, Discord, bot, log);
-            }
-        }
-    }, 60000);
-
-});
+const prefix = config.discord.prefix;
 
 bot.on('message', msg => {
-    /*console.log(msg);*/
     if (msg.author.id === config.discord.botId) return;
     if (!msg.guild) return;
 
 
     if (msg.content.toLowerCase().startsWith(`<@${config.discord.botId}>`)) {
         let messageSay = msg.content.split(':');
-        console.log(messageSay);
 
         switch (messageSay[1].trim()) {
             case 'say':
@@ -108,7 +76,7 @@ bot.on('message', msg => {
                                     if (presence.game.type === 3) {
                                         type = 'WATCHING'
                                     }
-                                    msg.reply(`Activity set to ${presence.game ? presence.game.name : 'none'} with ${type} type`);
+                                    msg.channel.send(`Activity set to ${presence.game ? presence.game.name : 'none'} with ${type} type`);
                                     log.sendLog(bot, `Activity set to ${presence.game ? presence.game.name : 'none'} with ${type} type`);
                                 })
                             }
@@ -117,24 +85,28 @@ bot.on('message', msg => {
                 }
                 break;
 
-        case 'sendApod':
-            apod.sendApod(config, request, Discord, bot, log);
+            case 'sendApod':
+                apod.sendApod(config, request, Discord, bot, log);
 
-            break;
+                break;
+
+            default:
+                msg.reply(`Sorry, I didn't understand your request. Use \` ${prefix}help \` to know commands`);
+                break;
         }
     }
 
 
     switch (msg.content.toLowerCase()) {
-        case 'tag':
-            msg.channel.send('The command tag is `' + tag + '`');
+        case 'prefix':
+            msg.channel.send('The command prefix is `' + prefix + '`');
             break;
 
-        case tag + 'help':
-            help.sendEmbed(bot, Discord, msg, tag);
+        case prefix + 'help':
+            help.sendEmbed(bot, Discord, msg, prefix);
             break;
 
-        case tag + 'reload':
+        case prefix + 'reload':
             if (msg.author.id === config.discord.ownerId) {
                 msg.channel.send('Ok, i\'m reload');
                 bot.destroy().then(() => {
@@ -152,11 +124,7 @@ bot.on('message', msg => {
             }
             break;
 
-        case tag + 'ping':
-            msg.reply('pong !');
-            break;
-
-        case tag + 'uptime':
+        case prefix + 'uptime':
             msg.channel.send(uptime());
             break;
 
@@ -165,7 +133,7 @@ bot.on('message', msg => {
             msg.channel.send(`${emojiAh} ah!`);
             break;
 
-        case tag + 'launch-info':
+        case prefix + 'launch-info':
             if (msg.member.roles.has(config.discord.roles.launchInformation)) {
                 msg.member.removeRole(config.discord.roles.launchInformation).then(msg.reply('The role has been remove'));
             } else {
@@ -173,7 +141,7 @@ bot.on('message', msg => {
             }
             break;
 
-        case tag + 'launch':
+        case prefix + 'launch':
             embedLaunch.embed(dateFormat, request, msg, Discord, bot);
             break;
     }
@@ -189,7 +157,6 @@ bot.on('guildMemberRemove', user => {
     bot.channels.get(config.discord.channels.welcome).send(user + ' has been left the server');
     log.sendLog(bot, user + ' has been left the server')
 });
-
 
 
 function commandRefused(msg, command) {
@@ -217,7 +184,7 @@ function uptime() {
         minute = 0
     }
 
-    if (hour === 60) {
+    if (hour === 24) {
         day++;
         hour = 0
     }
@@ -237,7 +204,37 @@ bot.login(config.discord.token).then(() => {
                         bot.user.setActivity(data[0].game, {type: data[0].type})
                             .then(
                                 presence => {
-                                    log.sendLog(bot, `Activity set to ${presence.game ? presence.game.name : 'none'}`)
+                                    log.sendLog(bot, `Activity set to \`${presence.game ? presence.game.name : 'none'}\``);
+
+                                    bot.on('ready', () => {
+                                        setInterval(() => {
+                                            uptime();
+                                        }, 1000);
+
+                                        setImmediate( () => {
+                                            LaunchInfoLog.find().then(launchInfo => {
+                                                launchInfoModule.launchInfoLog(request, LaunchInfoLog, launchInfo, Discord, bot);
+                                            })
+                                        });
+
+                                        setInterval(() => {
+
+                                            LaunchInfoLog.find().then(launchInfo => {
+                                                launchInfoModule.launchInfoLog(request, LaunchInfoLog, launchInfo, Discord, bot);
+                                            })
+
+                                        }, 3600000);
+                                        /* 3600000 */
+
+                                        setInterval(() => {
+                                            if (new Date().getHours() === 9) {
+                                                if (new Date().getMinutes() === 0) {
+                                                    apod.sendApod(config, request, Discord, bot, log);
+                                                }
+                                            }
+                                        }, 60000);
+
+                                    });
                                 }
                             )
                             .catch(console.error);

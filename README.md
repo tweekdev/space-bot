@@ -17,7 +17,8 @@ Generate your config.json file
       "apod": "Role id for ping @ 9h for new nasa apod"
     },
     "botId": "Your bot id",
-    "ownerId": "Your id"
+    "ownerId": "Your id",
+    "prefix": "Your prefix command"
   },
   "db": {
     "mongoUri": "Your mongo db URI"
