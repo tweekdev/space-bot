@@ -53,7 +53,6 @@ bot.on('message', msg => {
                     msg.reply('Type reference is not valid, activity can\'t be set. Please use Playing, Watching, Streaming, Listening or nothing')
 
                 } else {
-
                     bot.user.setActivity(game, {type: type})
                         .then(
                             presence => {
@@ -63,7 +62,6 @@ bot.on('message', msg => {
                                 });
 
                                 gamePresenceLog.save().then(() => {
-
                                     if (presence.game.type === 0) {
                                         type = 'PLAYING'
                                     }
@@ -90,8 +88,39 @@ bot.on('message', msg => {
 
                 break;
 
+            case 'purge':
+                if (msg.author.id === config.discord.ownerId) {
+                    if (isset(messageSay[2]) && messageSay[2] !== '') {
+                        msg.channel.bulkDelete(parseInt(messageSay[2].trim())).then( () => {
+                            msg.channel.send(`${parseInt(messageSay[2].trim())} message(s) was deleted - this message has been delete in 5 seconds`).then( message => {
+                                let secondsDeleted = 4;
+                                let countDown = setInterval( () => {
+                                    message.edit(`${parseInt(messageSay[2].trim())} message(s) was deleted - this message has been delete in ${secondsDeleted} seconds`).then( () => {
+                                        secondsDeleted--;
+                                        if (secondsDeleted < 0) {
+                                            clearInterval(countDown);
+                                            msg.channel.bulkDelete(1).catch( err => {
+                                                msg.channel.send(err.message);
+                                            });
+                                        }
+                                    })
+                                }, 1000);
+                            })
+                        }).catch( err => {
+                            msg.channel.send(err.message)
+                        });
+                    } else {
+                        msg.reply(`Bad request => \`@bot : purge : <amount>\``);
+                    }
+                } else {
+                    msg.reply('Sorry, you don\'t have permission')
+                }
+
+                break;
+
             default:
                 msg.reply(`Sorry, I didn't understand your request. Use \` ${prefix}help \` to know commands`);
+
                 break;
         }
     }
@@ -100,10 +129,12 @@ bot.on('message', msg => {
     switch (msg.content.toLowerCase()) {
         case 'prefix':
             msg.channel.send('The command prefix is `' + prefix + '`');
+
             break;
 
         case prefix + 'help':
             help.sendEmbed(bot, Discord, msg, prefix);
+
             break;
 
         case prefix + 'reload':
@@ -122,15 +153,18 @@ bot.on('message', msg => {
             } else {
                 commandRefused(msg, 'reload');
             }
+
             break;
 
         case prefix + 'uptime':
             msg.channel.send(uptime());
+
             break;
 
         case 'ah!':
             const emojiAh = bot.emojis.find(emoji => emoji.name === "ah");
             msg.channel.send(`${emojiAh} ah!`);
+
             break;
 
         case prefix + 'launch-info':
@@ -139,10 +173,12 @@ bot.on('message', msg => {
             } else {
                 msg.member.addRole(config.discord.roles.launchInformation).then(msg.reply('The role has been added'));
             }
+
             break;
 
         case prefix + 'launch':
             embedLaunch.embed(dateFormat, request, msg, Discord, bot);
+
             break;
     }
 });
@@ -192,7 +228,7 @@ function uptime() {
 }
 
 bot.login(config.discord.token).then(() => {
-    console.log('Connected');
+    console.log(`Connected on ${bot.user.username}`);
     log.sendLog(bot, 'Connected');
 
     mongoose.connect(config.db.mongoUri, {useNewUrlParser: true,})
