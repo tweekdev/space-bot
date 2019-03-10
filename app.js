@@ -152,7 +152,7 @@ bot.on('message', msg => {
 
             case 'temp':
                 exec('cat /sys/class/thermal/thermal_zone0/temp', (stdout) => {
-                   msg.channel.send(`Raspberry pi temp : ${stdout}`);
+                   msg.channel.send(`Raspberry pi temp : ${parseInt(stdout/100)}°c`);
                 });
 
                 break;
