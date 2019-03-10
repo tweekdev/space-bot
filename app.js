@@ -67,7 +67,7 @@ bot.on('message', msg => {
         switch (messageSay[1].trim()) {
             case 'say':
                 bot.channels.get(messageSay[2].trim()).send(messageSay[3].trim()).then(() => {
-                    log.sendLog(bot, msg.author.name + " request to send `" + messageSay[3].trim() + '` in `' + messageSay[2].trim() + '` channel ID')
+                    log.sendLog(bot, `${msg.author.name} request to send ${messageSay[3].trim()} in ${messageSay[2].trim()} channel ID`)
                 });
                 break;
 

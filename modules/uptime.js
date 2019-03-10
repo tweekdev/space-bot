@@ -23,7 +23,7 @@ module.exports = {
         }
     },
     sendUptime: () => {
-        return ('I\'m connected since ' + day + ' days, ' + hour + ' hours, ' + minute + ' minutes and ' + second + ' seconds.')
+        return (`I'm connected since ${day} days, ${hour} hours, ${minute}, minutes and ${second} seconds.`)
     },
     resetUptime: () => {
         second = 0;
