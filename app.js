@@ -9,6 +9,7 @@ const embedLaunch = require('./modules/embedLaunch');
 const launchInfoModule = require('./modules/launchInfo');
 const help = require('./modules/help');
 const apod = require('./modules/apod');
+const uptime = require('./modules/uptime');
 
 const dateFormat = require('dateformat');
 const express = require('express');
@@ -24,6 +25,36 @@ app.use(cors());
 const bot = new Discord.Client();
 
 const prefix = config.discord.prefix;
+
+bot.on('ready', () => {
+    setInterval(() => {
+        uptime.countUptime();
+    }, 1000);
+
+    setImmediate( () => {
+        LaunchInfoLog.find().then(launchInfo => {
+            launchInfoModule.launchInfoLog(request, LaunchInfoLog, launchInfo, Discord, bot);
+        })
+    });
+
+    setInterval(() => {
+
+        LaunchInfoLog.find().then(launchInfo => {
+            launchInfoModule.launchInfoLog(request, LaunchInfoLog, launchInfo, Discord, bot);
+        })
+
+    }, 3600000);
+    /* 3600000 */
+
+    setInterval(() => {
+        if (new Date().getHours() === 9) {
+            if (new Date().getMinutes() === 0) {
+                apod.sendApod(config, request, Discord, bot, log);
+            }
+        }
+    }, 60000);
+
+});
 
 bot.on('message', msg => {
     if (msg.author.id === config.discord.botId) return;
@@ -91,7 +122,7 @@ bot.on('message', msg => {
             case 'purge':
                 if (msg.author.id === config.discord.ownerId) {
                     if (isset(messageSay[2]) && messageSay[2] !== '') {
-                        msg.channel.bulkDelete(parseInt(messageSay[2].trim())).then( () => {
+                        msg.channel.bulkDelete(parseInt(messageSay[2].trim()) + 1).then( () => {
                             msg.channel.send(`${parseInt(messageSay[2].trim())} message(s) was deleted - this message has been delete in 5 seconds`).then( message => {
                                 let secondsDeleted = 4;
                                 let countDown = setInterval( () => {
@@ -141,10 +172,7 @@ bot.on('message', msg => {
             if (msg.author.id === config.discord.ownerId) {
                 msg.channel.send('Ok, i\'m reload');
                 bot.destroy().then(() => {
-                    second = 0;
-                    minute = 0;
-                    hour = 0;
-                    day = 0;
+                    uptime.resetUptime();
                     bot.login(config.discord.token).then(() => {
                         console.log('Connected');
                         msg.channel.send('I\'m back !');
@@ -157,7 +185,7 @@ bot.on('message', msg => {
             break;
 
         case prefix + 'uptime':
-            msg.channel.send(uptime());
+            msg.channel.send(uptime.sendUptime());
 
             break;
 
@@ -204,29 +232,6 @@ function isset(data) {
     return !(data === undefined || data === null || data === 'null')
 }
 
-let second = 0;
-let minute = 0;
-let hour = 0;
-let day = 0;
-
-function uptime() {
-    second++;
-    if (second === 60) {
-        minute++;
-        second = 0;
-    }
-    if (minute === 60) {
-        hour++;
-        minute = 0
-    }
-
-    if (hour === 24) {
-        day++;
-        hour = 0
-    }
-    return ('I\'m connected since ' + day + ' days, ' + hour + ' hours, ' + minute + ' minutes and ' + second + ' seconds.')
-}
-
 bot.login(config.discord.token).then(() => {
     console.log(`Connected on ${bot.user.username}`);
     log.sendLog(bot, 'Connected');
@@ -241,36 +246,6 @@ bot.login(config.discord.token).then(() => {
                             .then(
                                 presence => {
                                     log.sendLog(bot, `Activity set to \`${presence.game ? presence.game.name : 'none'}\``);
-
-                                    bot.on('ready', () => {
-                                        setInterval(() => {
-                                            uptime();
-                                        }, 1000);
-
-                                        setImmediate( () => {
-                                            LaunchInfoLog.find().then(launchInfo => {
-                                                launchInfoModule.launchInfoLog(request, LaunchInfoLog, launchInfo, Discord, bot);
-                                            })
-                                        });
-
-                                        setInterval(() => {
-
-                                            LaunchInfoLog.find().then(launchInfo => {
-                                                launchInfoModule.launchInfoLog(request, LaunchInfoLog, launchInfo, Discord, bot);
-                                            })
-
-                                        }, 3600000);
-                                        /* 3600000 */
-
-                                        setInterval(() => {
-                                            if (new Date().getHours() === 9) {
-                                                if (new Date().getMinutes() === 0) {
-                                                    apod.sendApod(config, request, Discord, bot, log);
-                                                }
-                                            }
-                                        }, 60000);
-
-                                    });
                                 }
                             )
                             .catch(console.error);
