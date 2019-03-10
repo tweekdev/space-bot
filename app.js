@@ -219,7 +219,7 @@ bot.on('guildMemberAdd', user => {
 
 bot.on('guildMemberRemove', user => {
     bot.channels.get(config.discord.channels.welcome).send(user + ' has been left the server');
-    log.sendLog(bot, user + ' has been left the server')
+    log.sendLog(bot, user + ' has left the server')
 });
 
 
