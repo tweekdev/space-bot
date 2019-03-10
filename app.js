@@ -3,21 +3,22 @@
 const mongoose = require('mongoose');
 const Discord = require('discord.js');
 const config = require('./config');
-const log = require('./modules/log');
+const dateFormat = require('dateformat');
+const express = require('express');
+const request = require('request');
+const { exec } = require('child_process');
 
+const log = require('./modules/log');
 const embedLaunch = require('./modules/embedLaunch');
 const launchInfoModule = require('./modules/launchInfo');
 const help = require('./modules/help');
 const apod = require('./modules/apod');
 const uptime = require('./modules/uptime');
 
-const dateFormat = require('dateformat');
-const express = require('express');
 const LaunchInfoLog = require('./models/launchInfoLogModel');
 const gamePresence = require('./models/gamePresenceModel');
 
 const cors = require('cors');
-const request = require('request');
 const app = express();
 app.use(cors());
 
@@ -61,7 +62,7 @@ bot.on('message', msg => {
     if (!msg.guild) return;
 
 
-    if (msg.content.toLowerCase().startsWith(`<@${config.discord.botId}>`)) {
+    if (msg.content.toLowerCase().startsWith(`<@${config.discord.botId}> :`)) {
         let messageSay = msg.content.split(':');
 
         switch (messageSay[1].trim()) {
@@ -149,6 +150,13 @@ bot.on('message', msg => {
 
                 break;
 
+            case 'temp':
+                exec('cat /sys/class/thermal/thermal_zone0/temp', (stdout) => {
+                   msg.channel.send(`Raspberry pi temp : ${stdout}`);
+                });
+
+                break;
+
             default:
                 msg.reply(`Sorry, I didn't understand your request. Use \` ${prefix}help \` to know commands`);
 
@@ -218,7 +226,7 @@ bot.on('guildMemberAdd', user => {
 });
 
 bot.on('guildMemberRemove', user => {
-    bot.channels.get(config.discord.channels.welcome).send(user + ' has been left the server');
+    bot.channels.get(config.discord.channels.welcome).send(user + ' has left the server');
     log.sendLog(bot, user + ' has left the server')
 });
 
