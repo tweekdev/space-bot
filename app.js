@@ -151,7 +151,7 @@ bot.on('message', msg => {
                 break;
 
             case 'temp':
-                exec('\'/opt/vc/bin/vcgencmd measure_temp', (stdout) => {
+                exec('/opt/vc/bin/vcgencmd measure_temp', (stdout) => {
                    msg.channel.send(stdout);
                 });
 
