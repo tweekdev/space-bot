@@ -149,7 +149,7 @@ bot.on('message', msg => {
                 }
 
                 break;
-                
+
             default:
                 msg.reply(`Sorry, I didn't understand your request. Use \` ${prefix}help \` to know commands`);
 
