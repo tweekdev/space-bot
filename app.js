@@ -115,6 +115,13 @@ bot.on('message', msg => {
 
                 break;
 
+            case 'watchLaunch':
+                LaunchInfoLog.find().then(launchInfo => {
+                    launchInfoModule.launchInfoLog(request, LaunchInfoLog, launchInfo, Discord, bot);
+                });
+
+                break;
+
             case 'purge':
                 if (msg.author.id === config.discord.ownerId) {
                     if (isset(messageSay[2]) && messageSay[2] !== '') {

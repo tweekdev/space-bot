@@ -3,6 +3,7 @@
 const dateFormat = require('dateformat');
 const log = require('./log');
 const config = require('../config.json');
+const colors = require('colors');
 
 module.exports = {
     launchInfoLog: (request, LaunchInfoLog, launchInfo, Discord, bot, msg) => {
@@ -13,6 +14,9 @@ module.exports = {
 
 
         request('https://spacelaunchnow.me/3.2.0/launch/upcoming/', {json: true}, (err, res, body) => {
+
+            console.log(colors.green(`SPACE LAUNCH REQUEST : ${Date().toUpperCase()}`));
+            log.sendLog(bot, 'Space launch request');
 
             if (body.detail === 'Not found.') {
                 log.sendLog('No API response');
@@ -153,7 +157,7 @@ module.exports = {
 
                                     console.log(launchInfo);
 
-                                    launchInfo.save().then( () => {
+                                    launchInfo.save().then(() => {
                                         bot.channels.get(config.discord.channels.infoLaunch).send(`<@&${config.discord.roles.launchInformation}>`)
                                             .then(() => {
                                                 bot.channels.get(config.discord.channels.infoLaunch).send(launchInfoEmbed).then(() => {
@@ -163,15 +167,12 @@ module.exports = {
                                     }).catch(err => {
                                         log.sendLog(bot, err);
                                     });
-
-
-
                                 } else {
-                                    console.log('déjà présent');
+                                    console.log(colors.green('ALREADY SAVE'), JSON.stringify(launchInfoLog));
                                 }
                             });
                         } else {
-                            console.log(false);
+                            console.log(colors.red(`NOT FOR THE MOMENT :`), `${name.replace(/\n$/, '')}, ${mission.replace(/\n$/, '')}, ${orbit.replace(/\n$/, '')}`);
                         }
                     }
                 }
