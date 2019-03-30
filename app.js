@@ -6,7 +6,7 @@ const config = require('./config');
 const dateFormat = require('dateformat');
 const express = require('express');
 const request = require('request');
-const { exec } = require('child_process');
+const {exec} = require('child_process');
 
 const log = require('./modules/log');
 const embedLaunch = require('./modules/embedLaunch');
@@ -32,7 +32,7 @@ bot.on('ready', () => {
         uptime.countUptime();
     }, 1000);
 
-    setImmediate( () => {
+    setImmediate(() => {
         LaunchInfoLog.find().then(launchInfo => {
             launchInfoModule.launchInfoLog(request, LaunchInfoLog, launchInfo, Discord, bot);
         })
@@ -93,22 +93,23 @@ bot.on('message', msg => {
                                     type
                                 });
 
-                                gamePresenceLog.save().then(() => {
-                                    if (presence.game.type === 0) {
-                                        type = 'PLAYING'
-                                    }
-                                    if (presence.game.type === 1) {
-                                        type = 'STREAMING'
-                                    }
-                                    if (presence.game.type === 2) {
-                                        type = 'LISTENING'
-                                    }
-                                    if (presence.game.type === 3) {
-                                        type = 'WATCHING'
-                                    }
-                                    msg.channel.send(`Activity set to ${presence.game ? presence.game.name : 'none'} with ${type} type`);
-                                    log.sendLog(bot, `Activity set to ${presence.game ? presence.game.name : 'none'} with ${type} type`);
-                                })
+                                gamePresenceLog.save()
+                                    .then(() => {
+                                        if (presence.game.type === 0) {
+                                            type = 'PLAYING'
+                                        }
+                                        if (presence.game.type === 1) {
+                                            type = 'STREAMING'
+                                        }
+                                        if (presence.game.type === 2) {
+                                            type = 'LISTENING'
+                                        }
+                                        if (presence.game.type === 3) {
+                                            type = 'WATCHING'
+                                        }
+                                        msg.channel.send(`Activity set to ${presence.game ? presence.game.name : 'none'} with ${type} type`);
+                                        log.sendLog(bot, `Activity set to ${presence.game ? presence.game.name : 'none'} with ${type} type`);
+                                    })
                             }
                         )
                         .catch(console.error);
@@ -123,22 +124,22 @@ bot.on('message', msg => {
             case 'purge':
                 if (msg.author.id === config.discord.ownerId) {
                     if (isset(messageSay[2]) && messageSay[2] !== '') {
-                        msg.channel.bulkDelete(parseInt(messageSay[2].trim()) + 1).then( () => {
-                            msg.channel.send(`${parseInt(messageSay[2].trim())} message(s) was deleted - this message has been delete in 5 seconds`).then( message => {
+                        msg.channel.bulkDelete(parseInt(messageSay[2].trim()) + 1).then(() => {
+                            msg.channel.send(`${parseInt(messageSay[2].trim())} message(s) was deleted - this message has been delete in 5 seconds`).then(message => {
                                 let secondsDeleted = 4;
-                                let countDown = setInterval( () => {
-                                    message.edit(`${parseInt(messageSay[2].trim())} message(s) was deleted - this message has been delete in ${secondsDeleted} seconds`).then( () => {
+                                let countDown = setInterval(() => {
+                                    message.edit(`${parseInt(messageSay[2].trim())} message(s) was deleted - this message has been delete in ${secondsDeleted} seconds`).then(() => {
                                         secondsDeleted--;
                                         if (secondsDeleted < 0) {
                                             clearInterval(countDown);
-                                            msg.channel.bulkDelete(1).catch( err => {
+                                            msg.channel.bulkDelete(1).catch(err => {
                                                 msg.channel.send(err.message);
                                             });
                                         }
                                     })
                                 }, 1000);
                             })
-                        }).catch( err => {
+                        }).catch(err => {
                             msg.channel.send(err.message)
                         });
                     } else {
