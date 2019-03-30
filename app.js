@@ -6,6 +6,7 @@ const config = require('./config');
 const dateFormat = require('dateformat');
 const express = require('express');
 const request = require('request');
+const cron = require('node-cron');
 const { exec } = require('child_process');
 
 const log = require('./modules/log');
@@ -38,22 +39,15 @@ bot.on('ready', () => {
         })
     });
 
-    setInterval(() => {
-
+    cron.schedule('0 * * * *', () => {
         LaunchInfoLog.find().then(launchInfo => {
             launchInfoModule.launchInfoLog(request, LaunchInfoLog, launchInfo, Discord, bot);
         })
+    });
 
-    }, 3600000);
-    /* 3600000 */
-
-    setInterval(() => {
-        if (new Date().getHours() === 9) {
-            if (new Date().getMinutes() === 0) {
-                apod.sendApod(config, request, Discord, bot, log);
-            }
-        }
-    }, 60000);
+    cron.schedule('0 9 * * *', () => {
+        apod.sendApod(config, request, Discord, bot, log);
+    })
 
 });
 
