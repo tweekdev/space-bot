@@ -17,7 +17,9 @@ module.exports = {
             .addField(prefix + 'launch', 'Send 5 last programmed launch')
             .addField('@Space Bot : say : { channel id } : { your message }', 'Send message to specify channel')
             .addField('@Space Bot : gamePresence : { Your game } : { Type (Playing, Watching, Streaming, Listening) }', 'Change the game presence status')
-            .addField('@Space Bot: purge : { amount }', 'Delete amount messages only if you are the discord owner')
+            .addField('@Space Bot : purge : { amount }', 'Delete amount messages only if you are the discord owner')
+            .addField('@Space Bot : watchLaunch', 'Space launch request')
+            .addField('@Space Bot : sendApod', 'Send apod')
 
             .setTimestamp()
             .addBlankField(true)

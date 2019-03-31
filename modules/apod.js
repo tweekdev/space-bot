@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-    sendApod: (config, request, Discord, bot, log) => {
+    sendApod: (config, request, Discord, bot, logger) => {
         try {
             request(`https://api.nasa.gov/planetary/apod?api_key=${config.nasa.apiKey}`, {json: true}, (err, res, body) => {
                 if (!body.error) {
@@ -36,22 +36,21 @@ module.exports = {
 
                     bot.channels.get(config.discord.channels.nasaApod).send(`<@&${config.discord.roles.apod}>`).then(
                         bot.channels.get(config.discord.channels.nasaApod).send(apod).then(() => {
-                            console.log(video);
                             if (video !== undefined) {
                                 bot.channels.get(config.discord.channels.nasaApod).send(video).then(() => {
-                                    log.sendLog(bot, 'Send new Apod');
+                                    logger.log(bot, 'Send new Apod', 'success');
                                 });
                             } else {
-                                log.sendLog(bot, 'Send new Apod');
+                                logger.log(bot, 'Send new Apod', 'success');
                             }
                         })
                     );
                 } else {
-                    log.sendLog(bot, 'No response Apod API')
+                    logger.log(bot, 'No response Apod API', 'error')
                 }
             });
         } catch (err) {
-            log.sendLog(bot, {"error": err})
+            logger.log(bot, {"error": err}, 'error')
         }
     }
 };

@@ -1,7 +1,7 @@
 'use strict';
 
 const dateFormat = require('dateformat');
-const log = require('./log');
+const logger = require('./log');
 const config = require('../config.json');
 const colors = require('colors');
 
@@ -15,19 +15,19 @@ module.exports = {
 
         request('https://spacelaunchnow.me/3.2.0/launch/upcoming/', {json: true}, (err, res, body) => {
 
-            console.log(colors.green(`SPACE LAUNCH REQUEST : ${Date().toUpperCase()}`));
-            log.sendLog(bot, 'Space launch request');
+            logger.log(bot, `Space launch api request`, 'info', true);
 
             if (body.detail === 'Not found.') {
-                log.sendLog('No API response');
-                msg.channel.send('ERROR: No API response * launchInfo *');
+                logger.log(bot, 'No space launch API response', 'error', true);
 
             } else {
+
+                logger.log(bot, `Space launch api response`, 'success', true);
 
                 if (launchInfo[0] !== undefined && body.results[0].id !== launchInfo[0].idLaunch) {
                     LaunchInfoLog.findOneAndDelete({_id: launchInfo[0]._id})
                         .then(() => {
-                            log.sendLog('delete launch');
+                            logger.log(bot, 'DB info, we have delete a launch information because the launch has gone', 'info', true);
                         });
 
                 } else {
@@ -85,19 +85,19 @@ module.exports = {
 
                         if (isset(body.results[i].mission)) {
                             if (isset(body.results[i].mission.name)) {
-                                mission = 'Mission : ' + body.results[i].mission.name + '\n';
+                                mission = 'Mission : ' + body.results[i].mission.name;
                             } else {
                                 mission = 'Mission : ' + '*undefined*' + '\n';
                             }
 
                             if (isset(body.results[i].mission.orbit)) {
-                                orbit = 'Orbit : ' + body.results[i].mission.orbit + '\n \n';
+                                orbit = 'Orbit : ' + body.results[i].mission.orbit;
                             } else {
-                                orbit = 'Orbit : ' + '*undefined*' + '\n \n';
+                                orbit = 'Orbit : ' + '*undefined*';
                             }
                         } else {
-                            mission = 'Mission : ' + '*undefined*' + '\n';
-                            orbit = 'Orbit : ' + '*undefined*' + '\n \n';
+                            mission = 'Mission : ' + '*undefined*';
+                            orbit = 'Orbit : ' + '*undefined*';
                         }
 
                         if (isset(body.results[i].window_start)) {
@@ -146,33 +146,36 @@ module.exports = {
                                     const windowStart = dateWindowStartFormat;
                                     const windowEnd = dateWindowEndFormat;
 
+                                    let embedMission = mission + '\n';
+                                    let embedOrbit = orbit + '\n \n';
+
                                     const launchInfo = new LaunchInfoLog({
                                         idLaunch,
                                         enterprise,
-                                        mission,
-                                        orbit,
+                                        embedMission,
+                                        embedOrbit,
                                         windowStart,
                                         windowEnd
                                     });
 
-                                    console.log(launchInfo);
+                                    logger.log(bot, launchInfo, 'info', false);
 
                                     launchInfo.save().then(() => {
                                         bot.channels.get(config.discord.channels.infoLaunch).send(`<@&${config.discord.roles.launchInformation}>`)
                                             .then(() => {
                                                 bot.channels.get(config.discord.channels.infoLaunch).send(launchInfoEmbed).then(() => {
-                                                    log.sendLog(bot, 'Send launch reminder')
+                                                    logger.log(bot, `Discord embed launch reminder was sending (${name}, ${mission}, ${orbit})`, 'success', true)
                                                 });
                                             });
                                     }).catch(err => {
-                                        log.sendLog(bot, err);
+                                        logger.log(bot, err, 'error', false)
                                     });
                                 } else {
-                                    console.log(colors.green('ALREADY SAVE'), JSON.stringify(launchInfoLog));
+                                    logger.log(bot, `Launch already save ${JSON.stringify(launchInfoLog)}`, 'info', false)
                                 }
                             });
                         } else {
-                            console.log(colors.red(`NOT FOR THE MOMENT :`), `${name.replace(/\n$/, '')}, ${mission.replace(/\n$/, '')}, ${orbit.replace(/\n$/, '')}`);
+                            logger.log(bot, `Takeoff is not expected within 24 hours (${name}, ${mission}, ${orbit})`, '', false)
                         }
                     }
                 }

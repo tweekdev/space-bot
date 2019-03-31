@@ -9,7 +9,7 @@ const request = require('request');
 const cron = require('node-cron');
 const { exec } = require('child_process');
 
-const log = require('./modules/log');
+const logger = require('./modules/log');
 const embedLaunch = require('./modules/embedLaunch');
 const launchInfoModule = require('./modules/launchInfo');
 const help = require('./modules/help');
@@ -55,209 +55,233 @@ bot.on('message', msg => {
     if (msg.author.id === config.discord.botId) return;
     if (!msg.guild) return;
 
+    if (msg.content.toLowerCase().startsWith(`<@${config.discord.botId}> :`) || msg.content.toLowerCase().startsWith(prefix)) {
 
-    if (msg.content.toLowerCase().startsWith(`<@${config.discord.botId}> :`)) {
-        let messageSay = msg.content.split(':');
+        logger.log(bot, `${msg.author.username} request ${msg.content}`, 'info', true);
 
-        switch (messageSay[1].trim()) {
-            case 'say':
-                bot.channels.get(messageSay[2].trim()).send(messageSay[3].trim()).then(() => {
-                    log.sendLog(bot, `${msg.author.name} request to send ${messageSay[3].trim()} in ${messageSay[2].trim()} channel ID`)
-                });
-                break;
+        if (msg.content.toLowerCase().startsWith(`<@${config.discord.botId}> :`)) {
+            let messageSay = msg.content.split(':');
 
-            case 'gamePresence':
-                const game = messageSay[2].trim();
-                let type;
-                if (isset(messageSay[3])) {
-                    type = messageSay[3].trim().toUpperCase();
-                } else {
-                    type = 'PLAYING'
-                }
+            switch (messageSay[1].trim()) {
+                case 'say':
+                    bot.channels.get(messageSay[2].trim()).send(messageSay[3].trim()).then( () => {
+                        msg.channel.send('Your request has been successfully sending');
+                        logger.log(bot, `Say request has been sending with success`, 'success', true)
+                    });
 
-                if (type !== 'PLAYING' && type !== 'WATCHING' && type !== 'STREAMING' && type !== 'LISTENING') {
-                    msg.reply('Type reference is not valid, activity can\'t be set. Please use Playing, Watching, Streaming, Listening or nothing')
+                    break;
 
-                } else {
-                    bot.user.setActivity(game, {type: type})
-                        .then(
-                            presence => {
-                                const gamePresenceLog = new gamePresence({
-                                    game,
-                                    type
-                                });
-
-                                gamePresenceLog.save()
-                                    .then(() => {
-                                        if (presence.game.type === 0) {
-                                            type = 'PLAYING'
-                                        }
-                                        if (presence.game.type === 1) {
-                                            type = 'STREAMING'
-                                        }
-                                        if (presence.game.type === 2) {
-                                            type = 'LISTENING'
-                                        }
-                                        if (presence.game.type === 3) {
-                                            type = 'WATCHING'
-                                        }
-                                        msg.channel.send(`Activity set to ${presence.game ? presence.game.name : 'none'} with ${type} type`);
-                                        log.sendLog(bot, `Activity set to ${presence.game ? presence.game.name : 'none'} with ${type} type`);
-                                    })
-                            }
-                        )
-                        .catch(console.error);
-                }
-                break;
-
-            case 'sendApod':
-                apod.sendApod(config, request, Discord, bot, log);
-
-                break;
-
-            case 'watchLaunch':
-                LaunchInfoLog.find().then(launchInfo => {
-                    launchInfoModule.launchInfoLog(request, LaunchInfoLog, launchInfo, Discord, bot);
-                });
-
-                break;
-
-            case 'purge':
-                if (msg.author.id === config.discord.ownerId) {
-                    if (isset(messageSay[2]) && messageSay[2] !== '') {
-                        msg.channel.bulkDelete(parseInt(messageSay[2].trim()) + 1).then(() => {
-                            msg.channel.send(`${parseInt(messageSay[2].trim())} message(s) was deleted - this message has been delete in 5 seconds`).then(message => {
-                                let secondsDeleted = 4;
-                                let countDown = setInterval(() => {
-                                    message.edit(`${parseInt(messageSay[2].trim())} message(s) was deleted - this message has been delete in ${secondsDeleted} seconds`).then(() => {
-                                        secondsDeleted--;
-                                        if (secondsDeleted < 0) {
-                                            clearInterval(countDown);
-                                            msg.channel.bulkDelete(1).catch(err => {
-                                                msg.channel.send(err.message);
-                                            });
-                                        }
-                                    })
-                                }, 1000);
-                            })
-                        }).catch(err => {
-                            msg.channel.send(err.message)
-                        });
+                case 'gamePresence':
+                    const game = messageSay[2].trim();
+                    let type;
+                    if (isset(messageSay[3])) {
+                        type = messageSay[3].trim().toUpperCase();
                     } else {
-                        msg.reply(`Bad request => \`@bot : purge : <amount>\``);
+                        type = 'PLAYING'
                     }
+
+                    if (type !== 'PLAYING' && type !== 'WATCHING' && type !== 'STREAMING' && type !== 'LISTENING') {
+                        msg.reply('Type reference is not valid, activity can\'t be set. Please use Playing, Watching, Streaming, Listening or nothing')
+                        logger.log(bot, `Bad type request`, 'error', true)
+
+                    } else {
+                        bot.user.setActivity(game, {type: type})
+                            .then(
+                                presence => {
+                                    const gamePresenceLog = new gamePresence({
+                                        game,
+                                        type
+                                    });
+
+                                    gamePresenceLog.save()
+                                        .then(() => {
+                                            if (presence.game.type === 0) {
+                                                type = 'PLAYING'
+                                            }
+                                            if (presence.game.type === 1) {
+                                                type = 'STREAMING'
+                                            }
+                                            if (presence.game.type === 2) {
+                                                type = 'LISTENING'
+                                            }
+                                            if (presence.game.type === 3) {
+                                                type = 'WATCHING'
+                                            }
+                                            msg.channel.send(`Activity set to ${presence.game ? presence.game.name : 'none'} with ${type} type`);
+                                            logger.log(bot, `Activity set to ${presence.game ? presence.game.name : 'none'} with ${type} type`, 'success', true)
+                                        })
+                                }
+                            )
+                            .catch(err => {
+                                logger.log(bot, `Request error : ${err}`, 'error', true)
+                            });
+                    }
+                    break;
+
+                case 'sendApod':
+                    apod.sendApod(config, request, Discord, bot, logger);
+
+                    break;
+
+                case 'watchLaunch':
+                    LaunchInfoLog.find().then(launchInfo => {
+                        launchInfoModule.launchInfoLog(request, LaunchInfoLog, launchInfo, Discord, bot).then( () => {
+                            msg.channel.send('Launch information has been watch successfully')
+                        });
+                    });
+
+                    break;
+
+                case 'purge':
+                    if (msg.author.id === config.discord.ownerId) {
+                        if (isset(messageSay[2]) && messageSay[2] !== '') {
+                            msg.channel.bulkDelete(parseInt(messageSay[2].trim()) + 1).then(() => {
+
+                                msg.channel.send(`${parseInt(messageSay[2].trim())} message(s) was deleted - this message has been delete in 5 seconds`).then(message => {
+
+                                    logger.log(bot, `${parseInt(messageSay[2].trim())} message(s) was deleted in ${msg.channel.name}`, 'info', true);
+                                    setTimeout(() => {
+                                        msg.channel.bulkDelete(1).catch(err => {
+                                            msg.channel.send(err.message);
+                                        });
+                                    }, 5000);
+                                })
+                            }).catch(err => {
+                                msg.channel.send(err.message);
+                                logger.log(bot, `An error has occurred : ${err}`, 'error', true)
+                            });
+                        } else {
+                            msg.reply(`Bad request => \`@bot : purge : <amount>\``);
+                            logger.log(bot, `purge bad request`, 'info', true)
+                        }
+                    } else {
+                        msg.reply('Sorry, you don\'t have permission');
+                        logger.log(bot, `${msg.author.username} don't have this request permission`, 'warning', true)
+                    }
+
+                    break;
+
+                default:
+                    msg.channel.send('Sorry, I don\'t understand your request');
+                    logger.log(bot, `${msg.author.username} - Bad request`, 'error', true);
+
+                    break;
+            }
+        }
+
+
+        switch (msg.content.toLowerCase()) {
+            case 'prefix':
+                msg.channel.send('The command prefix is `' + prefix + '`');
+                logger.log(bot, `*Prefix* has been successfully sending`, 'success', true);
+
+                break;
+
+            case prefix + 'help':
+                help.sendEmbed(bot, Discord, msg, prefix);
+                logger.log(bot, `*Help* has been successfully sending`, 'success', true);
+
+                break;
+
+            case prefix + 'reload':
+                if (msg.author.id === config.discord.ownerId) {
+                    msg.channel.send('Ok, i\'m reload');
+                    logger.log(bot, `*Reload* engage`, 'success', true);
+                    bot.destroy().then(() => {
+                        uptime.resetUptime();
+                        bot.login(config.discord.token).then(() => {
+                            logger.log(bot, `*Reloading* has been successfully done`, 'success', true);
+                            msg.channel.send('I\'m back !');
+                        });
+                    });
                 } else {
-                    msg.reply('Sorry, you don\'t have permission')
+                    logger.log(bot, `${msg.author.username} don't have this request permission`, 'warning', true)
                 }
+
+                break;
+
+            case prefix + 'uptime':
+                msg.channel.send(uptime.sendUptime());
+                logger.log(bot, `*Uptime* request has been successfully send`, 'success', true);
+
+                break;
+
+            case 'ah!':
+                const emojiAh = bot.emojis.find(emoji => emoji.name === "ah");
+                msg.channel.send(`${emojiAh} ah!`);
+                logger.log(bot, `*AH!* request has been successfully send`, 'success', true);
+
+                break;
+
+            case prefix + 'launch-info':
+                let role = msg.guild.roles.get(config.discord.roles.launchInformation);
+
+                if (msg.member.roles.has(config.discord.roles.launchInformation)) {
+                    msg.member.removeRole(config.discord.roles.launchInformation).then(() => {
+                        msg.reply(`${msg.author.username}, The role has been successfully removed`);
+                        logger.log(bot, `*${role.name}* role has been successfully removed`, 'success', true)
+                    });
+                } else {
+                    msg.member.addRole(config.discord.roles.launchInformation).then( () => {
+                        msg.reply(`${msg.author.username}, The role has been successfully added`);
+                        logger.log(bot, `*${role.name}* role has been successfully added`, 'success', true)
+                    });
+                }
+
+                break;
+
+            case prefix + 'launch':
+                embedLaunch.embed(dateFormat, request, msg, Discord, bot);
 
                 break;
 
             default:
-                msg.reply(`Sorry, I didn't understand your request. Use \` ${prefix}help \` to know commands`);
+                msg.channel.send('Sorry, I don\'t understand your request');
+                logger.log(bot, `${msg.author.username} - Bad request`, 'error', true);
 
                 break;
         }
-    }
-
-
-    switch (msg.content.toLowerCase()) {
-        case 'prefix':
-            msg.channel.send('The command prefix is `' + prefix + '`');
-
-            break;
-
-        case prefix + 'help':
-            help.sendEmbed(bot, Discord, msg, prefix);
-
-            break;
-
-        case prefix + 'reload':
-            if (msg.author.id === config.discord.ownerId) {
-                msg.channel.send('Ok, i\'m reload');
-                bot.destroy().then(() => {
-                    uptime.resetUptime();
-                    bot.login(config.discord.token).then(() => {
-                        console.log('Connected');
-                        msg.channel.send('I\'m back !');
-                    });
-                });
-            } else {
-                commandRefused(msg, 'reload');
-            }
-
-            break;
-
-        case prefix + 'uptime':
-            msg.channel.send(uptime.sendUptime());
-
-            break;
-
-        case 'ah!':
-            const emojiAh = bot.emojis.find(emoji => emoji.name === "ah");
-            msg.channel.send(`${emojiAh} ah!`);
-
-            break;
-
-        case prefix + 'launch-info':
-            if (msg.member.roles.has(config.discord.roles.launchInformation)) {
-                msg.member.removeRole(config.discord.roles.launchInformation).then(msg.reply('The role has been remove'));
-            } else {
-                msg.member.addRole(config.discord.roles.launchInformation).then(msg.reply('The role has been added'));
-            }
-
-            break;
-
-        case prefix + 'launch':
-            embedLaunch.embed(dateFormat, request, msg, Discord, bot);
-
-            break;
     }
 });
 
 
 bot.on('guildMemberAdd', user => {
     bot.channels.get(config.discord.channels.welcome).send(user + ' has arrived on the server');
-    log.sendLog(bot, user + ' has arrived on the server')
+    logger.log(bot, `${user} has arrived on the server`, 'info', true)
 });
 
 bot.on('guildMemberRemove', user => {
     bot.channels.get(config.discord.channels.welcome).send(user + ' has left the server');
-    log.sendLog(bot, user + ' has left the server')
+    logger.log(bot, `${user} has left the server`, 'info', true)
 });
-
-
-function commandRefused(msg, command) {
-    msg.channel.send('Command not authorized');
-    log.sendLog(bot, '`' + msg.author.tag + '` try to use `' + command + '` command.');
-}
 
 function isset(data) {
     return !(data === undefined || data === null || data === 'null')
 }
 
 bot.login(config.discord.token).then(() => {
-    console.log(`Connected on ${bot.user.username}`);
-    log.sendLog(bot, 'Connected');
+    logger.log(bot, `Connected on ${bot.user.username}`, 'info', true);
 
     mongoose.connect(config.db.mongoUri, {useNewUrlParser: true,})
         .then(() => {
-            log.sendLog(bot, 'DB SpaceBot connexion established');
+            logger.log(bot, `SpaceBot database connexion has been established`, 'info', true);
 
             gamePresence.find().sort({_id: -1}).limit(1).then(data => {
                     if (data) {
                         bot.user.setActivity(data[0].game, {type: data[0].type})
-                            .then(
-                                presence => {
-                                    log.sendLog(bot, `Activity set to \`${presence.game ? presence.game.name : 'none'}\``);
+                            .then(presence => {
+                                    logger.log(bot, `Activity set to \`${presence.game ? presence.game.name : 'none'}\``, 'info', true);
                                 }
                             )
-                            .catch(console.error);
+                            .catch( err => {
+                                logger.log(bot, `Activity can't be set ${ {"err": err} }`, 'error', true)
+                            });
                     }
                 }
             );
 
         })
         .catch(err => {
-            log.sendLog(bot, 'DB SpaceBot connexion was not established : ' + err);
+            logger.log(bot, `SpaceBot database connexion has been established ${ {"err": err} }`, 'error', true)
         });
 });
