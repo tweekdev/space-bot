@@ -175,6 +175,6 @@ bot.login(config.discord.token).then(() => {
 
         })
         .catch(err => {
-            logger.log(bot, `SpaceBot database connexion has been established ${ {"err": err} }`, 'error', true)
+            logger.log(bot, `SpaceBot database connexion has not been established ${ JSON.stringify(err) }`, 'error', true)
         });
 });
