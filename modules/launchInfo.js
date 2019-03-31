@@ -158,7 +158,7 @@ module.exports = {
                                         windowEnd
                                     });
 
-                                    logger.log(bot, launchInfo, 'info', false);
+                                    logger.log(bot, JSON.stringify(launchInfo), 'info', false);
 
                                     launchInfo.save().then(() => {
                                         bot.channels.get(config.discord.channels.infoLaunch).send(`<@&${config.discord.roles.launchInformation}>`)
