@@ -3,7 +3,6 @@
 const dateFormat = require('dateformat');
 const logger = require('./log');
 const config = require('../config.json');
-const colors = require('colors');
 
 module.exports = {
     launchInfoLog: (request, LaunchInfoLog, launchInfo, Discord, bot, msg) => {
