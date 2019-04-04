@@ -84,14 +84,13 @@ bot.login(config.discord.token).then(() => {
                                 }
                             )
                             .catch(err => {
-                                logger.log(bot, `Activity can't be set ${{"err": err}}`, 'error', true)
+                                logger.log(bot, `Activity can't be set ${JSON.stringify(err)}`, 'error', true)
                             });
                     }
                 }
             );
         })
         .catch(err => {
-            console.log(err);
             logger.log(bot, `SpaceBot database connexion has not been established ${JSON.stringify(err)}`, 'error', true)
         });
 });

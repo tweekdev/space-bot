@@ -1,10 +1,10 @@
 'use strict';
 
 module.exports = {
-    sendApod: (config, request, Discord, bot, logger) => {
+    sendApod: (config, request, Discord, bot, logger, msg) => {
         try {
             request(`https://api.nasa.gov/planetary/apod?api_key=${config.nasa.apiKey}`, {json: true}, (err, res, body) => {
-                if (body.error !== undefined) {
+                if (body) {
                     if (!body.error) {
                         let explanationApod;
                         if (body.explanation.length >= 1000) {
@@ -39,22 +39,26 @@ module.exports = {
                             bot.channels.get(config.discord.channels.nasaApod).send(apod).then(() => {
                                 if (video !== undefined) {
                                     bot.channels.get(config.discord.channels.nasaApod).send(video).then(() => {
-                                        logger.log(bot, 'Send new Apod', 'success');
+                                        logger.log(bot, `New Apod sending ${JSON.stringify(body)}`, 'success', true);
+                                        msg.channel.send(`New Apod sending`);
                                     });
                                 } else {
-                                    logger.log(bot, 'Send new Apod', 'success');
+                                    logger.log(bot, `New Apod sending ${JSON.stringify(body)}`, 'success', true);
+                                    msg.channel.send(`New Apod sending`);
                                 }
                             })
                         );
                     } else {
-                        logger.log(bot, 'No response Apod API', 'error')
+                        logger.log(bot, 'No Apod API response', 'error', true);
+                        msg.channel.send(`No Apod API response`);
                     }
                 } else {
-                    logger.log(bot, 'No response Apod API', 'error')
+                    logger.log(bot, 'No Apod API response', 'error', true);
+                    msg.channel.send(`No Apod API response`);
                 }
             });
         } catch (err) {
-            logger.log(bot, {"error": err}, 'error')
+            logger.log(bot, JSON.stringify(err), 'error', true)
         }
     }
 };

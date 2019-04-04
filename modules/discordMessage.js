@@ -38,7 +38,7 @@ module.exports = {
                     break;
 
                 case 'sendApod':
-                    apod.sendApod(config, request, Discord, bot, logger);
+                    apod.sendApod(config, request, Discord, bot, logger, msg);
                     break;
 
                 case 'watchLaunch':
