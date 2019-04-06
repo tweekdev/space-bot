@@ -11,7 +11,6 @@ const logger = require('./modules/log');
 const launchInfoModule = require('./modules/launchInfo');
 const apod = require('./modules/apod');
 const uptime = require('./modules/uptime');
-const gamePresence = require('./modules/gamePresence');
 const discordMessage = require('./modules/discordMessage');
 
 const LaunchInfoLog = require('./models/launchInfoLogModel');
@@ -27,10 +26,6 @@ const bot = new Discord.Client();
 const prefix = config.discord.prefix;
 
 bot.on('ready', () => {
-
-    setInterval(() => {
-        uptime.countUptime();
-    }, 1000);
 
     setImmediate(() => {
         LaunchInfoLog.find().then(launchInfo => {
@@ -70,6 +65,7 @@ bot.on('guildMemberRemove', user => {
 
 
 bot.login(config.discord.token).then(() => {
+    uptime.countUptime();
     logger.log(bot, `Connected on ${bot.user.username}`, 'info', true);
 
     mongoose.connect(config.db.mongoUri, {useNewUrlParser: true,})
