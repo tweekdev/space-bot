@@ -18,7 +18,7 @@ module.exports = {
                         if (body.media_type === 'video') {
                             let url = body.url.split('/');
                             video = `https://www.youtube.com/watch?v=${url[4]}`;
-                            media = 'http://www.laboiteverte.fr/wp-content/uploads/2015/09/nasa-logo-1280x1059.png';
+                            media = '';
 
                         } else {
                             media = body.url;
@@ -40,11 +40,9 @@ module.exports = {
                                 if (video !== undefined) {
                                     bot.channels.get(config.discord.channels.nasaApod).send(video).then(() => {
                                         logger.log(bot, `New Apod sending ${JSON.stringify(body)}`, 'success', true);
-                                        msg.channel.send(`New Apod sending`);
                                     });
                                 } else {
                                     logger.log(bot, `New Apod sending ${JSON.stringify(body)}`, 'success', true);
-                                    msg.channel.send(`New Apod sending`);
                                 }
                             })
                         );
