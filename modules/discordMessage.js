@@ -100,21 +100,41 @@ module.exports = {
                     break;
 
                 case prefix + 'launch-info':
-                    let role = msg.guild.roles.get(config.discord.roles.launchInformation);
+                    let roleLaunchInfo = msg.guild.roles.get(config.discord.roles.launchInformation);
 
                     if (msg.member.roles.has(config.discord.roles.launchInformation)) {
                         msg.member.removeRole(config.discord.roles.launchInformation).then(() => {
                             msg.reply(`${msg.author.username}, The role has been successfully removed`).then( () => {
-                                logger.log(bot, `*${role.name}* role has been successfully removed`, 'success', true)
+                                logger.log(bot, `*${roleLaunchInfo.name}* role has been successfully removed`, 'success', true)
                             })
                         });
                     } else {
                         msg.member.addRole(config.discord.roles.launchInformation).then(() => {
                             msg.reply(`${msg.author.username}, The role has been successfully added`).then( () => {
-                                logger.log(bot, `*${role.name}* role has been successfully added`, 'success', true)
+                                logger.log(bot, `*${roleLaunchInfo.name}* role has been successfully added`, 'success', true)
                             })
                         });
                     }
+                    break;
+
+                case prefix + 'apod':
+                    let roleApod = msg.guild.roles.get(config.discord.roles.apod);
+
+                    if (msg.member.roles.has(config.discord.roles.apod)) {
+                        msg.member.removeRole(msg.guild.roles.get(config.discord.roles.apod)).then( () => {
+                            msg.reply(`${msg.author.username}, The role has been successfully removed`).then( () => {
+                                logger.log(bot, `*${roleApod.name}* role has been successfully removed`, 'success', true)
+                            })
+                        })
+                    } else {
+                        msg.member.addRole(config.discord.roles.apod).then(() => {
+                            msg.reply(`${msg.author.username}, The role has been successfully added`).then( () => {
+                                logger.log(bot, `*${roleApod.name}* role has been successfully added`, 'success', true)
+                            })
+                        });
+                    }
+
+
                     break;
 
                 case prefix + 'launch':
