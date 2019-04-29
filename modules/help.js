@@ -8,11 +8,10 @@ module.exports = {
             .setColor(0x20fc20)
             .setThumbnail("https://thumbs.gfycat.com/UnripeAdoredGrayreefshark-max-1mb.gif")
 
-            .addField('Prefix', 'Send prefix info')
             .addField(prefix + 'help', 'Reply help for bot command')
             .addField(prefix + 'reload', 'Reload API connexion')
             .addField(prefix + 'uptime', 'Send uptime connexion')
-            .addField('ah!', 'No word for this shit')
+            .addField(prefix + 'ah', 'No word for this shit')
             .addField(prefix + 'launch-info', 'Add or remove launchInfo role')
             .addField(prefix + 'apod', 'Add or remove APOD role')
             .addField(prefix + 'launch', 'Send 5 last programmed launch')
