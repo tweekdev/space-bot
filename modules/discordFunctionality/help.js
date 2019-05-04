@@ -9,6 +9,36 @@ module.exports = {
             .setThumbnail("https://thumbs.gfycat.com/UnripeAdoredGrayreefshark-max-1mb.gif")
 
             .addField(prefix + 'help', 'Reply help for bot command')
+            .addField(prefix + 'ah', 'No word for this shit')
+            .addField(prefix + 'launch-info', 'Add or remove launchInfo role')
+            .addField(prefix + 'apod', 'Add or remove APOD role')
+            .addField(prefix + 'launch', 'Send 5 last programmed launch')
+
+            .setTimestamp()
+            .addBlankField(true)
+            .setFooter("For any problem, contact *Aïna#9471*");
+
+
+        msg.reply(help).then( () => {
+
+        })
+    },
+
+    sendEmbedAdmin: (bot, Discord, msg, prefix) => {
+        const help = new Discord.RichEmbed()
+            .setTitle(`:warning: Help for bot command`)
+            .setAuthor(bot.user.username, bot.user.avatarURL)
+            .setColor(0x20fc20)
+            .setThumbnail("https://thumbs.gfycat.com/UnripeAdoredGrayreefshark-max-1mb.gif")
+
+            .addField('@Space Bot ; say ; { channel id } ; { your message }', 'Send message to specify channel')
+            .addField('@Space Bot ; gamePresence ; { Your game } ; { Type (Playing, Watching, Streaming, Listening) }', 'Change the game presence status')
+            .addField('@Space Bot ; purge ; { amount }', 'Delete amount messages only if you are the discord owner')
+            .addField('@Space Bot ; watchLaunch', 'Space launch request')
+            .addField('@Space Bot ; sendApod', 'Send apod')
+            .addField('@Space Bot ; sendLive ; { message } ; { link }', 'Send live message info')
+
+            .addField(prefix + 'help', 'Reply help for bot command')
             .addField(prefix + 'reload', 'Reload API connexion')
             .addField(prefix + 'uptime', 'Send uptime connexion')
             .addField(prefix + 'ah', 'No word for this shit')
@@ -26,12 +56,3 @@ module.exports = {
         })
     }
 };
-
-
-/*
-            .addField('@Space Bot : say : { channel id } : { your message }', 'Send message to specify channel')
-            .addField('@Space Bot : gamePresence : { Your game } : { Type (Playing, Watching, Streaming, Listening) }', 'Change the game presence status')
-            .addField('@Space Bot : purge : { amount }', 'Delete amount messages only if you are the discord owner')
-            .addField('@Space Bot : watchLaunch', 'Space launch request')
-            .addField('@Space Bot : sendApod', 'Send apod')
- */

@@ -20,39 +20,51 @@ const gamePresenceSchema = require('../../models/gamePresenceModel');
 
 module.exports = {
     onMessage: (bot, msg, prefix) => {
-        if (msg.content.toLowerCase().startsWith(`<@${config.discord.botId}> :`)) {
+        if (msg.content.toLowerCase().startsWith(`<@${config.discord.botId}>`)) {
             logger.log(bot, `${msg.author.username} request ${msg.content}`, 'info', true);
+            console.log(msg.content);
 
-            let messageSay = msg.content.split(';!');
+            let messageSay = msg.content.split(';');
 
-            switch (messageSay[1].trim()) {
-                case 'say':
-                    bot.channels.get(messageSay[2].trim()).send(messageSay[3].trim()).then(() => {
-                        msg.channel.send('Your request has been successfully sending');
-                        logger.log(bot, `Say request has been sending with success`, 'success', true)
-                    });
-                    break;
-
-                case 'gamePresence':
-                    gamePresence.gamePresence(bot, gamePresenceSchema, logger, messageSay[2], messageSay[3], msg);
-                    break;
-
-                case 'sendApod':
-                    apod.sendApod(config, request, Discord, bot, logger, msg);
-                    break;
-
-                case 'watchLaunch':
-                    LaunchInfoLog.find().then(launchInfo => {
-                        launchInfoModule.launchInfoLog(request, LaunchInfoLog, launchInfo, Discord, bot).then(() => {
-                            msg.channel.send('Launch information has been watch successfully')
+            if (msg.author.id !== config.discord.ownerId) {
+                msg.channel.reply('Sorry, you don\'t have the permission');
+                logger.log(bot, `${msg.author.username} don't have request permission`, 'warning', true)
+            } else {
+                switch (messageSay[1].trim()) {
+                    case 'say':
+                        bot.channels.get(messageSay[2].trim()).send(messageSay[3].trim()).then(() => {
+                            msg.channel.send('Your request has been successfully sending');
+                            logger.log(bot, `Say request has been sending with success`, 'success', true)
                         });
-                    });
-                    break;
+                        break;
 
-                default:
-                    msg.channel.send('Sorry, I don\'t understand your request');
-                    logger.log(bot, `${msg.author.username} - Bad request - ${msg.content}`, 'error', true);
-                    break;
+                    case 'gamePresence':
+                        gamePresence.gamePresence(bot, gamePresenceSchema, logger, messageSay[2], messageSay[3], msg);
+                        break;
+
+                    case 'sendApod':
+                        apod.sendApod(config, request, Discord, bot, logger, msg);
+                        break;
+
+                    case 'watchLaunch':
+                        LaunchInfoLog.find().then(launchInfo => {
+                            launchInfoModule.launchInfoLog(request, LaunchInfoLog, launchInfo, Discord, bot).then(() => {
+                                msg.channel.send('Launch information has been watch successfully')
+                            });
+                        });
+                        break;
+
+                    case 'sendLive':
+                        bot.channels.get(config.discord.channels.infoLaunch).send(`<@&${config.discord.roles.launchInformation}>  ${messageSay[2]} - ${messageSay[3]}`).then( () => {
+                            logger.log(bot, `Live link successfully sending \`${messageSay[2]} - ${messageSay[3]}\` `, 'success', true)
+                        });
+                        break;
+
+                    default:
+                        msg.channel.send('Sorry, I don\'t understand your request');
+                        logger.log(bot, `${msg.author.username} - Bad request - ${msg.content}`, 'error', true);
+                        break;
+                }
             }
         }
 
@@ -62,8 +74,13 @@ module.exports = {
 
             switch (msg.content.toLowerCase()) {
                 case prefix + 'help':
-                    help.sendEmbed(bot, Discord, msg, prefix);
-                    logger.log(bot, `*Help* has been successfully sending`, 'success', true);
+                    if (msg.author.id === config.discord.ownerId) {
+                        help.sendEmbedAdmin(bot, Discord, msg, prefix);
+                        logger.log(bot, `*Help* has been successfully sending`, 'success', true);
+                    } else {
+                        help.sendEmbed(bot, Discord, msg, prefix);
+                        logger.log(bot, `*Help* has been successfully sending`, 'success', true);
+                    }
                     break;
 
                 case prefix + 'reload':
