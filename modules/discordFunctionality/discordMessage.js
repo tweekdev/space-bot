@@ -23,7 +23,7 @@ module.exports = {
         if (msg.content.toLowerCase().startsWith(`<@${config.discord.botId}> :`)) {
             logger.log(bot, `${msg.author.username} request ${msg.content}`, 'info', true);
 
-            let messageSay = msg.content.split(':');
+            let messageSay = msg.content.split(';!');
 
             switch (messageSay[1].trim()) {
                 case 'say':
