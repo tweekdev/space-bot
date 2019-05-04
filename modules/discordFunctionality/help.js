@@ -8,18 +8,13 @@ module.exports = {
             .setColor(0x20fc20)
             .setThumbnail("https://thumbs.gfycat.com/UnripeAdoredGrayreefshark-max-1mb.gif")
 
-            .addField('Prefix', 'Send prefix info')
             .addField(prefix + 'help', 'Reply help for bot command')
             .addField(prefix + 'reload', 'Reload API connexion')
             .addField(prefix + 'uptime', 'Send uptime connexion')
-            .addField('ah!', 'No word for this shit')
+            .addField(prefix + 'ah', 'No word for this shit')
             .addField(prefix + 'launch-info', 'Add or remove launchInfo role')
+            .addField(prefix + 'apod', 'Add or remove APOD role')
             .addField(prefix + 'launch', 'Send 5 last programmed launch')
-            .addField('@Space Bot : say : { channel id } : { your message }', 'Send message to specify channel')
-            .addField('@Space Bot : gamePresence : { Your game } : { Type (Playing, Watching, Streaming, Listening) }', 'Change the game presence status')
-            .addField('@Space Bot : purge : { amount }', 'Delete amount messages only if you are the discord owner')
-            .addField('@Space Bot : watchLaunch', 'Space launch request')
-            .addField('@Space Bot : sendApod', 'Send apod')
 
             .setTimestamp()
             .addBlankField(true)
@@ -31,3 +26,12 @@ module.exports = {
         })
     }
 };
+
+
+/*
+            .addField('@Space Bot : say : { channel id } : { your message }', 'Send message to specify channel')
+            .addField('@Space Bot : gamePresence : { Your game } : { Type (Playing, Watching, Streaming, Listening) }', 'Change the game presence status')
+            .addField('@Space Bot : purge : { amount }', 'Delete amount messages only if you are the discord owner')
+            .addField('@Space Bot : watchLaunch', 'Space launch request')
+            .addField('@Space Bot : sendApod', 'Send apod')
+ */
