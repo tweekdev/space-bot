@@ -1,8 +1,8 @@
 'use strict';
 
 const dateFormat = require('dateformat');
-const logger = require('./log');
-const config = require('../config.json');
+const logger = require('../log');
+const config = require('../../config.json');
 
 module.exports = {
     launchInfoLog: (request, LaunchInfoLog, launchInfo, Discord, bot, msg) => {

@@ -5,18 +5,18 @@ const Discord = require('discord.js');
 const {exec} = require('child_process');
 
 const dateFormat = require('dateformat');
-const config = require('../config');
+const config = require('../../config');
 
 const gamePresence = require('./gamePresence');
-const logger = require('./log');
-const apod = require('./apod');
-const launchInfoModule = require('./launchInfo');
+const logger = require('../log');
+const apod = require('../spaceFunctionality/apod');
+const launchInfoModule = require('../spaceFunctionality/launchInfo');
 const help = require('./help');
-const uptime = require('./uptime');
-const embedLaunch = require('./embedLaunch');
+const uptime = require('../uptime');
+const embedLaunch = require('../spaceFunctionality/embedLaunch');
 
-const LaunchInfoLog = require('../models/launchInfoLogModel');
-const gamePresenceSchema = require('../models/gamePresenceModel');
+const LaunchInfoLog = require('../../models/launchInfoLogModel');
+const gamePresenceSchema = require('../../models/gamePresenceModel');
 
 module.exports = {
     onMessage: (bot, msg, prefix) => {

@@ -8,10 +8,10 @@ const request = require('request');
 const cron = require('node-cron');
 
 const logger = require('./modules/log');
-const launchInfoModule = require('./modules/launchInfo');
-const apod = require('./modules/apod');
+const launchInfoModule = require('./modules/spaceFunctionality/launchInfo');
+const apod = require('./modules/spaceFunctionality/apod');
 const uptime = require('./modules/uptime');
-const discordMessage = require('./modules/discordMessage');
+const discordMessage = require('./modules/discordFunctionality/discordMessage');
 
 const LaunchInfoLog = require('./models/launchInfoLogModel');
 const gamePresenceSchema = require('./models/gamePresenceModel');
@@ -19,7 +19,6 @@ const gamePresenceSchema = require('./models/gamePresenceModel');
 const cors = require('cors');
 const app = express();
 app.use(cors());
-
 
 const bot = new Discord.Client();
 
