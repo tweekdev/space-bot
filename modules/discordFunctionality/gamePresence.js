@@ -11,7 +11,7 @@ module.exports = {
         }
 
         if (type !== 'PLAYING' && type !== 'WATCHING' && type !== 'STREAMING' && type !== 'LISTENING') {
-            msg.reply('Type reference is not valid, activity can\'t be set. Please use Playing, Watching, Streaming, Listening or nothing')
+            msg.reply('Type reference is not valid, activity can\'t be set. Please use Playing, Watching, Streaming, Listening or nothing');
             logger.log(bot, `Bad type request`, 'error', true)
 
         } else {
