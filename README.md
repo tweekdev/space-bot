@@ -1,4 +1,4 @@
-# nodeDiscordBot
+# Space Bot
 
 Generate your config.json file
 

@@ -8,11 +8,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://aina261@bitbucket.org/aina261/nodediscordbot.git"
+    "url": "https://github.com/Aina261/space-bot.git"
   },
   "author": "Arnaud RAMIARASOA",
   "license": "MIT",
-  "homepage": "https://bitbucket.org/aina261/nodediscordbot#readme",
+  "homepage": "https://github.com/Aina261/space-bot",
   "dependencies": {
     "colors": "^1.3.3",
     "cors": "^2.8.5",
@@ -20,7 +20,7 @@
     "discord.js": "^11.4.2",
     "express": "^4.16.4",
     "flickrapi": "^0.6.0",
-    "mongoose": "^5.5.1",
+    "mongoose": "^5.5.7",
     "node-cron": "^2.0.3",
     "request": "^2.88.0"
   }
