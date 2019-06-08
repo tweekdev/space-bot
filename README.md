@@ -29,3 +29,14 @@ Generate your config.json file
 }
 
 ```
+
+
+- Docker
+
+```
+$ docker image build -t space-bot .
+```
+
+```
+$ docker run --rm -d space-bot
+```
