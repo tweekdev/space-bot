@@ -38,7 +38,7 @@ bot.on('ready', () => {
         })
     });
 
-    cron.schedule('30 10 * * *', () => {
+    cron.schedule('0 11 * * *', () => {
         apod.sendApod(config, request, Discord, bot, logger);
     })
 
