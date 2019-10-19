@@ -1,11 +1,28 @@
 'use strict';
 
+const apodSchema = require('../../models/apodModel');
+
 module.exports = {
     sendApod: (config, request, Discord, bot, logger, msg) => {
         try {
             request(`https://api.nasa.gov/planetary/apod?api_key=${config.nasa.apiKey}`, {json: true}, (err, res, body) => {
                 if (body) {
                     if (!body.error) {
+
+                        const apodSave = new apodSchema({
+                            copyright: body.copyright,
+                            explanation: body.explanation,
+                            hdurl: body.hdurl,
+                            media_type: body.media_type,
+                            title: body.title,
+                            url: body.url,
+                        });
+
+                        apodSave.save().then( () => {
+                            logger.log(bot, 'Apod saved', 'success', false);
+                            msg.channel.send(`Apod savec`);
+                        });
+
                         let explanationApod;
                         if (body.explanation.length >= 1000) {
                             explanationApod = body.explanation.substring(0, 1000) + ' [...]';
